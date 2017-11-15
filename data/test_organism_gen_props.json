@@ -1,0 +1,77 @@
+{
+  "root": {
+    "name": "GenProp0065",
+    "association": null,
+    "artwork": false,
+    "children": [
+      {
+        "name": "GenProp0071",
+        "association": null,
+        "artwork": false,
+        "children": [
+          {
+            "name": "GenProp0180",
+            "association": null,
+            "artwork": false,
+            "children": [
+              {
+                "name": "GenProp0873",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0119",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0129",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0192",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0191",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0190",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0172",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0252",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              },
+              {
+                "name": "GenProp0176",
+                "association": "integral",
+                "artwork": true,
+                "children": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
