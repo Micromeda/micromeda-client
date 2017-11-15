@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>G2CView</title>
+
+    <!-- Import Externals-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.11.0/d3.min.js" integrity="sha256-aYYnqVVhAJ4lDammP4Qybmxg3/HVpA7/sNSCntyCyu4=" crossorigin="anonymous"></script>
+
+    <style>
+        .cell-diagram {
+            height: 75vh;
+        }
+
+        svg {
+            outline-color: red;
+        }
+    </style>
+
+    <script async>
+        function create_genome_property_name_list(root_genome_property)
+        {
+            var genome_properties_names = [];
+            var children = root_genome_property.children;
+
+            for (var index in children){
+                var child = children[index];
+
+                genome_properties_names.push(child.name);
+
+                if (child.children!==null) {
+                    var grand_child_names = create_genome_property_name_list(child);
+                    genome_properties_names = genome_properties_names.concat(grand_child_names)
+                }
+            }
+
+            return genome_properties_names
+        }
+
+        function render_cell(root_genome_property, diagram_root)
+        {
+            var circle_data = [
+                [250,125],
+                [750,125],
+                [750,375],
+                [250,375]
+
+            ];
+
+            var cell_membrane = diagram_root.append("path")
+                                            .data([circle_data])
+                                            .attr("d", d3.line().curve(d3.curveCardinalClosed))
+                                            .attr("stroke", "grey")
+                                            .attr("stroke-width", 2)
+                                            .attr("fill", "none");
+
+            var properties_to_draw = select_properties_to_draw(root_genome_property);
+            console.log(properties_to_draw);
+
+            var membrane_path = cell_membrane.node();
+            var memebrane_length = membrane_path.getTotalLength();
+
+            var slice_length = memebrane_length/(properties_to_draw.length);
+
+            var membrane_path_positions = [];
+            var current_position = 0;
+
+            while (current_position < memebrane_length){
+                membrane_path_positions.push(current_position);
+                current_position += slice_length
+            }
+
+            console.log(membrane_path_positions);
+
+            var placement_coordinates = [];
+            for (var i = 0; i <= membrane_path_positions.length; i++) {
+                var new_svg_point = membrane_path.getPointAtLength(membrane_path_positions[i]);
+                var x_y_coordinates = [new_svg_point.x,new_svg_point.y];
+                placement_coordinates.push(x_y_coordinates)
+            }
+
+            console.log(placement_coordinates);
+
+            for (var index in placement_coordinates){
+                var element_placement_position = placement_coordinates[index];
+
+                var integral_component_url = "data/singe_transporter.svg";
+
+                var width = 100;
+                var height = 100;
+
+                var final_position = [(element_placement_position[0] - (width/2)), (element_placement_position[1] - (height/2)) ];
+
+                var img = diagram_root.append("svg:image")
+                                      .attr("xlink:href", integral_component_url)
+                                      .attr("width", width)
+                                      .attr("height", height)
+                                      .attr("transform", "translate(" + final_position + ")");
+            }
+        }
+
+        function select_properties_to_draw(root_genome_property)
+        {
+            var genome_properties_to_draw = [];
+            var children = root_genome_property.children;
+
+            for (var index in children){
+                var child = children[index];
+
+                if (child.artwork === true) {
+                    genome_properties_to_draw.push(child);
+                }
+
+                if (child.children!==null) {
+                    var grand_child_names = select_properties_to_draw(child);
+                    genome_properties_to_draw = genome_properties_to_draw.concat(grand_child_names)
+                }
+            }
+
+            return genome_properties_to_draw
+        }
+
+
+        $.getJSON('data/test_organism_gen_props.json', function (genome_properties_tree) {
+            console.log(genome_properties_tree);
+            var root_genome_property = genome_properties_tree.root;
+
+            var genome_properties_names = create_genome_property_name_list(root_genome_property);
+            console.log(genome_properties_names);
+
+            var gen_prop_dropdown_div = $('#genprop_drop');
+
+            for (var index in genome_properties_names){
+                var name = genome_properties_names[index];
+
+                gen_prop_dropdown_div.append('<p>' + name + '</p>')
+            }
+
+            var cell_diagram_root = d3.select("#cell-diagram").append("svg")
+                                      .attr("width", 1000)
+                                      .attr("height", 500);
+
+            render_cell(root_genome_property, cell_diagram_root)
+        })
+
+    </script>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">G2CView</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav"></ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Home</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <section class="container-fluid">
+        <div class="row">
+            <div class="col-md-9">
+                <div class="panel panel-default cell-diagram">
+                    <div class="panel-body" id="cell-diagram">
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-1">
+                                <h4>Controls</h4>
+                            </div>
+                            <div class="col-md-11">
+                                <button type="button" class="btn">Full Screen</button>
+                                <button type="button" class="btn btn-primary">To SVG</button>
+                                <button type="button" class="btn btn-primary">To PNG</button>
+                                <button type="button" class="btn">Animation</button>
+                                <button type="button" class="btn">Zoom In</button>
+                                <button type="button" class="btn">Zoom Out</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Genome Properties</h3>
+                    </div>
+                    <div class="panel-body" id="genprop_drop">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
