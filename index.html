@@ -86,9 +86,12 @@
                 var secondary_svg_point = membrane_path.getPointAtLength(secondary_position);
 
                 // Cross platform compatible path point angle calculation.
-                var orientation = Math.atan2(primary_svg_point.y - secondary_svg_point.y, primary_svg_point.x - secondary_svg_point.x) * (180 / Math.PI);
+                var rotation = Math.round(Math.atan2(primary_svg_point.y - secondary_svg_point.y, primary_svg_point.x - secondary_svg_point.x) * (180 / Math.PI));
+                var x_coordinate = Math.round(primary_svg_point.x);
+                var y_coordinate = Math.round(primary_svg_point.y);
 
-                var coordinates = [primary_svg_point.x,primary_svg_point.y, orientation];
+
+                var coordinates = [x_coordinate, y_coordinate, rotation];
                 placement_coordinates.push(coordinates)
             }
 
