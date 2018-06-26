@@ -25,18 +25,17 @@
         </div>
     </nav>
 
-    <leaf-node v-bind:node-data="tree"></leaf-node>
-    <svg class="border border-primary" id="visualization-space">
-
-    </svg>
+    <div class="container-fluid">
+        <visualization></visualization>
+    </div>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
         integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
         crossorigin="anonymous"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"
-        integrity="sha256-j2LsvgOlQFIb2Mphb+tX7d5pNmFdpsJU+s5GNo3z63g=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"
+        integrity="sha256-gfQwA6PlkZsLqWu4bU4hXPrbTqzixm0B5MdvBLI+Oas=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
@@ -48,31 +47,62 @@
 <!-- Custom JS for creating the visualization. -->
 <script type="text/javascript">
     Vue.prototype.$http = axios; // Add Axios REST library to vue.js.
+    Vue.prototype.$d3 = d3; // Add d3 library to vue.js.
 
     Vue.component('leaf-node', {
-        props:['node-data'],
-        template: '<span>{{nodeData}}</span>'
+        props: ['node-data'],
+        template: '<text>{{nodeData}}</text>'
+    });
+
+    Vue.component('visualization', {
+        data: function () {
+            // Basic configuration settings for the visualisation component.
+            return {
+                dataURL: './data/example_genome_property.json',
+                baseWidth: 750,
+                baseHeight: 300,
+                itemSize: 22,
+                margins: {top: 120, right: 20, bottom: 20, left: 120},
+                tree: null,
+                columnNames: null
+            }
+        },
+        computed: {
+            // Visualisation width and height are computed dynamically.
+            width: function () {
+                const margins = this.margins;
+                return this.baseWidth - margins.right - margins.left;
+            },
+            height: function () {
+                const margins = this.margins;
+                return this.baseHeight - margins.top - margins.bottom;
+            },
+            cellSize: function () {
+                return this.itemSize - 1
+            },
+        },
+        mounted: function () {
+            let vue_viz_component = this;
+
+            vue_viz_component.$http(vue_viz_component.dataURL)
+                      .then(function (response) {
+                          vue_viz_component.tree = response.data['property_tree'];
+                          vue_viz_component.columnNames = response.data['sample_names'];
+                      })
+                      .catch(function (error) {
+                          console.log(error);
+                      });
+        },
+        template: '<svg id="viz-space" class="border border-primary"></svg>'
     });
 
     let app = new Vue({
                           el: '#app',
                           data: {
                               message: 'Hello Vue!',
-                              tree: 'null'
+                              tree: 'null',
                           },
-                          mounted: function () {
-                              let vue_object = this;
-
-                              vue_object.$http('./data/example_genome_property.json')
-                                    .then(function (response) {
-                                        vue_object.tree = response.data
-                                    })
-                                    .catch(function (error) {
-                                        console.log(error);
-                                    });
-                          }
                       })
-
 </script>
 </body>
 </html>

@@ -1,48 +1,55 @@
 {
-  "property_id": "GenProp0053",
-  "name": "Type II Secretion",
-  "result": [
-        "PARTIAL",
-        "PARTIAL",
-        "PARTIAL"
-      ],
-  "children": [
-    {
-      "step_id": "1",
-      "name": "Type II secretion system protein C",
-      "result": [
-        "YES",
-        "YES",
-        "YES"
-      ]
-    },
-    {
-      "step_id": "2",
-      "name": "Type II secretion system protein L",
-      "required": "TRUE",
-      "result": [
-        "YES",
-        "NO",
-        "NO"
-      ]
-    },
-    {
-      "step_id": "3",
-      "name": "Type II secretion system protein M",
-      "result": [
-        "NO",
-        "PARTIAL",
-        "PARTIAL"
-      ]
-    },
-    {
-      "step_id": "4",
-      "name": "Type II secretion system protein M",
-      "result": [
-        "PARTIAL",
-        "NO",
-        "YES"
-      ]
-    }
-  ]
+  "sample_names": [
+    "Sample1",
+    "Sample2",
+    "Sample3"
+  ],
+  "property_tree": {
+    "property_id": "GenProp0053",
+    "name": "Type II Secretion",
+    "result": [
+      "PARTIAL",
+      "PARTIAL",
+      "PARTIAL"
+    ],
+    "children": [
+      {
+        "step_id": "1",
+        "name": "Type II secretion system protein C",
+        "result": [
+          "YES",
+          "YES",
+          "YES"
+        ]
+      },
+      {
+        "step_id": "2",
+        "name": "Type II secretion system protein L",
+        "required": "TRUE",
+        "result": [
+          "YES",
+          "NO",
+          "NO"
+        ]
+      },
+      {
+        "step_id": "3",
+        "name": "Type II secretion system protein M",
+        "result": [
+          "NO",
+          "PARTIAL",
+          "PARTIAL"
+        ]
+      },
+      {
+        "step_id": "4",
+        "name": "Type II secretion system protein M",
+        "result": [
+          "PARTIAL",
+          "NO",
+          "YES"
+        ]
+      }
+    ]
+  }
 }
