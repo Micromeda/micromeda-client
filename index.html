@@ -26,83 +26,42 @@
     </nav>
 
     <div class="container-fluid">
-        <visualization></visualization>
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-        crossorigin="anonymous"></script>
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.js"
+        integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"
         integrity="sha256-gfQwA6PlkZsLqWu4bU4hXPrbTqzixm0B5MdvBLI+Oas=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
-        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
-        crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
 
 <!-- Custom JS for creating the visualization. -->
 <script type="text/javascript">
-    Vue.prototype.$http = axios; // Add Axios REST library to vue.js.
-    Vue.prototype.$d3 = d3; // Add d3 library to vue.js.
+    function get_leaf_data(current_property)
+    {
+        let node_data = [];
 
-    Vue.component('leaf-node', {
-        props: ['node-data'],
-        template: '<text>{{nodeData}}</text>'
-    });
-
-    Vue.component('visualization', {
-        data: function () {
-            // Basic configuration settings for the visualisation component.
-            return {
-                dataURL: './data/example_genome_property.json',
-                baseWidth: 750,
-                baseHeight: 300,
-                itemSize: 22,
-                margins: {top: 120, right: 20, bottom: 20, left: 120},
-                tree: null,
-                columnNames: null
+        if (current_property.children !== undefined){
+            let children = current_property.children;
+            for (let child in children)
+            {
+                const child_node_data = get_leaf_data(children[child]);
+                node_data = node_data.concat(child_node_data);
             }
-        },
-        computed: {
-            // Visualisation width and height are computed dynamically.
-            width: function () {
-                const margins = this.margins;
-                return this.baseWidth - margins.right - margins.left;
-            },
-            height: function () {
-                const margins = this.margins;
-                return this.baseHeight - margins.top - margins.bottom;
-            },
-            cellSize: function () {
-                return this.itemSize - 1
-            },
-        },
-        mounted: function () {
-            let vue_viz_component = this;
+        }
+        else {
+            node_data.push({'name': current_property['name'], 'result': current_property['result']});
+        }
+        return node_data
+    }
 
-            vue_viz_component.$http(vue_viz_component.dataURL)
-                      .then(function (response) {
-                          vue_viz_component.tree = response.data['property_tree'];
-                          vue_viz_component.columnNames = response.data['sample_names'];
-                      })
-                      .catch(function (error) {
-                          console.log(error);
-                      });
-        },
-        template: '<svg id="viz-space" class="border border-primary"></svg>'
+    $.getJSON("data/example_genome_property.json", function(genome_properties_data) {
+        let genome_property_tree = genome_properties_data['property_tree'];
+        let data = get_leaf_data(genome_property_tree);
+        console.log(data)
     });
-
-    let app = new Vue({
-                          el: '#app',
-                          data: {
-                              message: 'Hello Vue!',
-                              tree: 'null',
-                          },
-                      })
 </script>
 </body>
 </html>
