@@ -48,7 +48,7 @@
                 "step_id": "2",
                 "name": "Type II secretion system protein L",
                 "enabled": true,
-                "required": "TRUE",
+                "required": true,
                 "result": [
                   "YES",
                   "NO",
@@ -82,7 +82,7 @@
       {
         "property_id": "GenProp1075",
         "name": "Ferrous iron transport Feo system",
-        "enabled": true,
+        "enabled": false,
         "result": [
           "PARTIAL",
           "PARTIAL",
@@ -103,7 +103,7 @@
             "step_id": "2",
             "name": "Ferrous iron transport protein B",
             "enabled": true,
-            "required": "TRUE",
+            "required": true,
             "result": [
               "YES",
               "NO",

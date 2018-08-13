@@ -39,28 +39,134 @@
 
 <!-- Custom JS for creating the visualization. -->
 <script type="text/javascript">
+    function get_nodes(current_property, only_leaves = false)
+    {
+        let nodes = [];
+        let property_is_enabled = true;
+
+        let property_has_children = (current_property.children !== undefined);
+
+        if (only_leaves === true){
+            property_is_enabled = current_property.enabled;
+        }
+
+        if (property_has_children && property_is_enabled)
+        {
+            let children = current_property.children;
+            for (let child in children)
+            {
+                const child_node_data = get_nodes(children[child], only_leaves);
+                nodes = nodes.concat(child_node_data);
+            }
+        }
+        else
+        {
+            nodes.push(current_property);
+        }
+
+        if ((only_leaves !== true) && property_has_children) {
+            nodes.push(current_property);
+        }
+
+        return nodes
+    }
+
+    function get_leafs(current_property)
+    {
+        return get_nodes(current_property, true)
+    }
+
+    function get_number_of_leaves(current_property)
+    {
+        return get_leafs(current_property).length;
+    }
+
     function get_leaf_data(current_property)
     {
         let node_data = [];
 
-        if (current_property.children !== undefined){
-            let children = current_property.children;
-            for (let child in children)
-            {
-                const child_node_data = get_leaf_data(children[child]);
-                node_data = node_data.concat(child_node_data);
-            }
+        let leaf_nodes = get_leafs(current_property);
+
+        for (let node in leaf_nodes)
+        {
+            node_data.push({'name': leaf_nodes[node]['name'], 'result': leaf_nodes[node]['result']});
         }
-        else {
-            node_data.push({'name': current_property['name'], 'result': current_property['result']});
-        }
+
         return node_data
     }
 
-    $.getJSON("data/example_genome_property.json", function(genome_properties_data) {
-        let genome_property_tree = genome_properties_data['property_tree'];
-        let data = get_leaf_data(genome_property_tree);
-        console.log(data)
+    function doubly_link_tree(current_property)
+    {
+        let property_has_children = (current_property.children !== undefined);
+
+        if (property_has_children)
+        {
+            let children = current_property.children;
+            for (let child in children)
+            {
+                let child_property = children[child];
+
+                child_property.parent = current_property;
+                doubly_link_tree(child_property);
+            }
+        }
+    }
+
+    function max_leaf_to_node(leafs)
+    {
+        let global_max_node_hop = 0;
+        for (let leaf_index in leafs)
+        {
+            let leaf = leafs[leaf_index];
+
+            let current_leaf_parent_hopes = 0;
+
+            while (leaf.parent !== undefined)
+            {
+                current_leaf_parent_hopes += 1;
+                leaf = leaf.parent;
+            }
+
+            if (current_leaf_parent_hopes > global_max_node_hop)
+            {
+                global_max_node_hop = current_leaf_parent_hopes
+            }
+        }
+
+        return global_max_node_hop
+    }
+
+    function create_node_index(nodes) {
+        let node_index = {};
+        let node_identifier = 0;
+
+        for (let node in nodes){
+            let current_property = nodes[node];
+            current_property.node_id = node_identifier;
+            node_index[node_identifier] = current_property;
+            node_identifier++;
+        }
+
+        return node_index
+    }
+
+    $.getJSON("data/example_genome_property.json", function (genome_properties_data) {
+        let genome_properties_tree = genome_properties_data['property_tree'];
+        doubly_link_tree(genome_properties_tree);
+        let leafs = get_leafs(genome_properties_tree);
+        let nodes = get_nodes(genome_properties_tree);
+        let leaf_data = get_leaf_data(genome_properties_tree);
+        let number_of_leaves = get_number_of_leaves(genome_properties_tree);
+        let max_nodes_to_leaf = max_leaf_to_node(leafs);
+        let node_index = create_node_index(nodes);
+
+        console.log(genome_properties_tree);
+        console.log(leafs);
+        console.log(nodes);
+        console.log(leaf_data);
+        console.log(number_of_leaves);
+        console.log(max_nodes_to_leaf);
+        console.log(node_index);
     });
 </script>
 </body>
