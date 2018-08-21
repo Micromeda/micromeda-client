@@ -42,24 +42,67 @@
 
 <!-- Custom JS for creating the visualization. -->
 <script type="text/javascript">
+    function calculate_heatmap_width(genome_properties_tree, heatmap_parameters)
     {
+        let number_of_organisms = genome_properties_tree.sample_names.length;
+        let heatmap_cell_width = heatmap_parameters['cell_width'];
+        let heatmap_column_spacer = heatmap_parameters['column_spacer'];
 
+        let axes = heatmap_parameters['axes'];
+        let y_axis_label_offset = axes['y_axis_label_offset'];
+        let y_axis_label_width = axes['y_axis_label_width'];
+
+        return ((heatmap_cell_width + heatmap_column_spacer) * (number_of_organisms)) +
+            y_axis_label_offset + y_axis_label_width;
     }
 
+    function calculate_tree_width(genome_properties_tree, tree_parameters)
     {
+        let max_number_of_nodes_to_leaf = genome_properties_tree.max_nodes_to_leaf;
+        let tree_cell_width = tree_parameters['cell_width'];
+        let tree_label_width = tree_parameters['label_width'];
+        let tree_column_spacer = tree_parameters['column_spacer'];
+
+        return (tree_column_spacer + tree_label_width + tree_cell_width) * max_number_of_nodes_to_leaf;
     }
 
+    function calculate_diagram_height(genome_properties_tree, global_parameters)
     {
+        let number_leaf_nodes = genome_properties_tree.number_of_leaves;
+        let row_height = global_parameters['row_height'];
+        let row_spacer = global_parameters['row_spacer'];
+        let top_offset = global_parameters['top_offset'];
+        let tree_height = (row_height * number_leaf_nodes) + (row_spacer * (number_leaf_nodes - 1));
 
+        return tree_height + top_offset + row_spacer;
+    }
 
+    $.getJSON("data/example_genome_property.json", function (genome_properties_data) {
         $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
 
+            let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
 
+            console.log(diagram_parameters);
+            console.log(genome_properties_tree);
 
+            let margin_parameters = diagram_parameters['margins'];
+            let global_parameters = diagram_parameters['global'];
+            let heatmap_parameters = diagram_parameters['heatmap'];
+            let tree_parameters = diagram_parameters['tree'];
 
+            let left_margin = margin_parameters['left'];
+            let right_margin = margin_parameters['right'];
+            let top_margin = margin_parameters['top'];
+            let bottom_margin = margin_parameters['bottom'];
 
+            let diagram_height = calculate_diagram_height(genome_properties_tree, global_parameters);
+            let tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
+            let heatmap_width = calculate_heatmap_width(genome_properties_tree, heatmap_parameters);
 
+            let diagram_width = tree_width + heatmap_width;
 
+            let svg_height = diagram_height + top_margin + bottom_margin;
+            let svg_width = diagram_width + left_margin + right_margin;
         });
     });
 </script>
