@@ -91,6 +91,7 @@
         {
             node_data.push({'name': leaf_nodes[node]['name'], 'result': leaf_nodes[node]['result']});
         }
+        $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
 
         return node_data
     }
@@ -167,6 +168,7 @@
         console.log(number_of_leaves);
         console.log(max_nodes_to_leaf);
         console.log(node_index);
+        });
     });
 </script>
 </body>

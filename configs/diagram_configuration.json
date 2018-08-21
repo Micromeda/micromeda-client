@@ -1,0 +1,28 @@
+{
+  "margins": {
+    "left": 100,
+    "right": 100,
+    "top": 100,
+    "bottom": 100
+  },
+  "global": {
+    "top_offset": 100,
+    "row_height": 100,
+    "row_spacer": 100
+  },
+  "heatmap": {
+    "cell_width": 100,
+    "column_spacer": 100,
+    "axes": {
+      "x_axis_label_offset": 100,
+      "x_axis_label_width": 100,
+      "y_axis_label_offset": 100,
+      "y_axis_label_width": 100
+    }
+  },
+  "tree": {
+    "cell_width": 100,
+    "label_width": 100,
+    "column_spacer": 100
+  }
+}
