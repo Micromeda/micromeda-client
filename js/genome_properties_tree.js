@@ -9,7 +9,7 @@ function Genome_Properties_Tree(genome_properties_json)
     this.node_index = node_index;
     this.tree = genome_properties_tree;
     this.leafs = get_leafs(genome_properties_tree);
-    this.leaf_data = get_leaf_data(genome_properties_tree);
+    this.leaf_data = get_leaf_data(genome_properties_tree, this.sample_names);
     this.number_of_leaves = get_number_of_leaves(genome_properties_tree);
     this.max_nodes_to_leaf = max_node_to_leaf(this.leafs);
     this.switch_node_and_children_enabled_state = switch_node_and_children_enabled_state;
@@ -93,18 +93,37 @@ function Genome_Properties_Tree(genome_properties_json)
         return get_leafs(current_property).length;
     }
 
-    function get_leaf_data(current_property)
+    function get_leaf_data(genome_properties_tree, sample_names)
     {
-        let node_data = [];
-
-        let leaf_nodes = get_leafs(current_property);
+        let heatmap_data = [];
+        let leaf_nodes = get_leafs(genome_properties_tree);
+        let number_of_samples = sample_names.length;
 
         for (let node in leaf_nodes)
         {
-            node_data.push({'name': leaf_nodes[node]['name'], 'result': leaf_nodes[node]['result']});
+            let current_leaf_node = leaf_nodes[node];
+            let current_leaf_node_sample_results = current_leaf_node['result'];
+
+            let sample_name_counter = 0;
+            for (let result_index in current_leaf_node_sample_results){
+
+                let heatmap_cell_data = {};
+                heatmap_cell_data.propertyName = current_leaf_node['name'];
+                heatmap_cell_data.genome = sample_names[sample_name_counter];
+                heatmap_cell_data.propertyStatus = current_leaf_node_sample_results[result_index];
+
+                heatmap_data.push(heatmap_cell_data);
+
+                if (sample_name_counter === (number_of_samples - 1)) {
+                    sample_name_counter = 0
+                }
+                else {
+                    sample_name_counter++
+                }
+            }
         }
 
-        return node_data
+        return heatmap_data
     }
 
     function max_node_to_leaf(leafs)
