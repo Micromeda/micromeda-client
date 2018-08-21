@@ -25,7 +25,8 @@
         </div>
     </nav>
 
-    <div class="container-fluid">
+    <div class="heatmap container-fluid">
+
     </div>
 </div>
 
@@ -103,6 +104,96 @@
 
             let svg_height = diagram_height + top_margin + bottom_margin;
             let svg_width = diagram_width + left_margin + right_margin;
+
+            console.log(genome_properties_tree.leaf_data);
+            console.log(svg_height);
+            console.log(svg_width);
+
+            let heatmap_cell_width = heatmap_parameters['cell_width'];
+            let heatmap_column_spacer = heatmap_parameters['column_spacer'];
+
+            const itemSize = heatmap_cell_width + heatmap_column_spacer;
+            const margin = margin_parameters;
+
+            let heatmap_data = genome_properties_tree.leaf_data;
+
+            let x_elements = d3.set(heatmap_data.map(function (item) {
+                return item.genome;
+            })).values();
+
+            let y_elements = d3.set(heatmap_data.map(function (item) {
+                return item.propertyName;
+            })).values();
+
+            let xScale = d3.scale.ordinal()
+                           .domain(x_elements)
+                           .rangeBands([0, x_elements.length * itemSize]);
+
+            let xAxis = d3.svg.axis()
+                          .scale(xScale)
+                          .tickFormat(function (d) {
+                              return d;
+                          })
+                          .orient("top");
+
+            let yScale = d3.scale.ordinal()
+                           .domain(y_elements)
+                           .rangeBands([0, y_elements.length * itemSize]);
+
+            let yAxis = d3.svg.axis()
+                          .scale(yScale)
+                          .tickFormat(function (d) {
+                              return d;
+                          })
+                          .orient("right");
+
+            let colorScale = d3.scale.ordinal()
+                               .domain(['NO', 'PARTIAL', 'YES'])
+                               .range(["#737d84", "#FFD700", "#27AE60"]);
+
+            let svg = d3.select('.heatmap')
+                        .append("svg")
+                        .attr("width", svg_width)
+                        .attr("height",svg_width)
+                        .append("g")
+                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+            svg.selectAll('rect')
+               .data(heatmap_data)
+               .enter().append('g').append('rect')
+               .attr('class', 'cell')
+               .attr('width', heatmap_cell_width)
+               .attr('height', heatmap_cell_width)
+               .attr('y', function (heatmap_data_point) {
+                   return yScale(heatmap_data_point.propertyName);
+               })
+               .attr('x', function (heatmap_data_point) {
+                   return xScale(heatmap_data_point.genome);
+               })
+               .attr('fill', function (heatmap_data_point) {
+                   return colorScale(heatmap_data_point.propertyStatus);
+               });
+
+            svg.append("g")
+               .attr("class", "y axis")
+               .call(yAxis)
+               .attr("transform", function () {
+                   return "translate(" + (x_elements.length * (heatmap_cell_width + 1)) + ")";
+               })
+               .selectAll('text')
+               .attr('font-weight', 'normal');
+
+            svg.append("g")
+               .attr("class", "x axis")
+               .call(xAxis)
+               .selectAll('text')
+               .attr('font-weight', 'normal')
+               .style("text-anchor", "start")
+               .attr("dx", ".8em")
+               .attr("dy", ".5em")
+               .attr("transform", function () {
+                   return "rotate(-65)";
+               });
         });
     });
 </script>

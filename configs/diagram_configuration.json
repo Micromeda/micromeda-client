@@ -11,8 +11,8 @@
     "row_spacer": 100
   },
   "heatmap": {
-    "cell_width": 100,
-    "column_spacer": 100,
+    "cell_width": 21,
+    "column_spacer": 1,
     "axes": {
       "x_axis_label_offset": 100,
       "x_axis_label_width": 100,
