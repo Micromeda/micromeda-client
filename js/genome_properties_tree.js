@@ -12,7 +12,10 @@ function Genome_Properties_Tree(genome_properties_json)
     this.leaf_data = get_leaf_data(genome_properties_tree, this.sample_names);
     this.number_of_leaves = get_number_of_leaves(genome_properties_tree);
     this.max_nodes_to_leaf = max_node_to_leaf(this.leafs);
-    this.switch_node_and_children_enabled_state = switch_node_and_children_enabled_state;
+    this.switch_node_and_children_enabled_state = function (node_id) {
+        switch_node_and_children_enabled_state(node_id, genome_properties_tree);
+    };
+
 
     function create_node_index(genome_properties_tree)
     {
@@ -150,13 +153,10 @@ function Genome_Properties_Tree(genome_properties_json)
         return global_max_node_hop
     }
 
-    function switch_node_and_children_enabled_state(node_id)
+    function switch_node_and_children_enabled_state(node_id, genome_properties_tree)
     {
-        let genome_property_tree = this;
-        let current_genome_property = genome_property_tree.node_index[node_id];
-
+        let current_genome_property = genome_properties_tree.node_index[node_id];
         let enabled_property = 'enabled';
-
         let enable_state = !current_genome_property[enabled_property];
 
         apply_attribute_node_and_children(current_genome_property, enabled_property, enable_state);
