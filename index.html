@@ -73,7 +73,7 @@
 
     function calculate_tree_width(genome_properties_tree, tree_parameters)
     {
-        let max_number_of_nodes_to_leaf = genome_properties_tree.max_nodes_to_leaf;
+        let max_number_of_nodes_to_leaf = genome_properties_tree.max_nodes_to_leaf();
         let tree_cell_width = tree_parameters['cell_width'];
         let tree_label_width = tree_parameters['label_width'];
         let tree_column_spacer = tree_parameters['column_spacer'];
@@ -90,8 +90,9 @@
         return tree_height + top_offset + row_spacer;
     }
 
-    function calculate_tree_height(genome_properties_tree, global_parameters){
-        let number_leaf_nodes = genome_properties_tree.number_of_leaves;
+    function calculate_tree_height(genome_properties_tree, global_parameters)
+    {
+        let number_leaf_nodes = genome_properties_tree.number_of_leaves();
         let row_spacer = global_parameters['row_spacer'];
         let row_height = global_parameters['row_height'];
 
@@ -107,7 +108,7 @@
 
         let axes_parameters = heatmap_parameters['axes'];
 
-        let heatmap_data = genome_properties_tree.leaf_data;
+        let heatmap_data = genome_properties_tree.leaf_data();
 
         let x_elements = d3.set(heatmap_data.map(function (item) {
             return item.genome;
@@ -205,7 +206,7 @@
                           })
                           .sort(null);
 
-        let nodes = partition.nodes(genome_properties_tree.tree_no_leaves);
+        let nodes = partition.nodes(genome_properties_tree.tree_no_leaves());
 
         tree.selectAll(".node")
             .data(nodes)
