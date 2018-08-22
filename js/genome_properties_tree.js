@@ -173,22 +173,11 @@ function Genome_Properties_Tree(genome_properties_json)
     function switch_node_and_children_enabled_state(node_id, node_index)
     {
         let current_genome_property = node_index[node_id];
-        let enabled_property = 'enabled';
-        let enable_state = !current_genome_property[enabled_property];
-
-        apply_attribute_node_and_children(current_genome_property, enabled_property, enable_state);
-    }
-
-    function apply_attribute_node_and_children(current_property, property_name, property_value)
-    {
-        current_property[property_name] = property_value;
-
-        if ((current_property.children !== undefined))
-        {
-            let children = current_property.children;
-            for (let child in children)
-            {
-                apply_attribute_node_and_children(children[child], property_name, property_value);
+        let children = current_genome_property.children;
+        if (children !== undefined) {
+            for (let child_index in children){
+                let current_child_property = children[child_index];
+                current_child_property.enabled = !current_child_property.enabled;
             }
         }
     }
@@ -196,7 +185,7 @@ function Genome_Properties_Tree(genome_properties_json)
     function tree_no_leaves(genome_properties_tree)
     {
         undoubly_link_tree(genome_properties_tree);
-        let pruned_genome_properties_tree = jQuery.extend(true, {}, genome_properties_tree);
+        let pruned_genome_properties_tree = $.extend(true, {}, genome_properties_tree);
         doubly_link_tree(genome_properties_tree);
         doubly_link_tree(pruned_genome_properties_tree);
         prune_all_leafs(pruned_genome_properties_tree);
@@ -204,23 +193,22 @@ function Genome_Properties_Tree(genome_properties_json)
         return pruned_genome_properties_tree
     }
 
-    function prune_all_leafs(current_property)
+    function prune_all_leafs(genome_properties_tree)
     {
-        if (current_property.children !== undefined)
-        {
-            let children = current_property.children;
-            for (let child in children)
-            {
-                prune_all_leafs(children[child]);
+        let leafs = get_leafs(genome_properties_tree);
+
+        for (let leaf_index in leafs) {
+            let leaf_property = leafs[leaf_index];
+            let leaf_parent = leaf_property.parent;
+            let all_parents_children = leaf_parent.children;
+
+            let leafs_index_in_parent = all_parents_children.indexOf(leaf_property);
+            if (leafs_index_in_parent > -1) {
+                all_parents_children.splice(leafs_index_in_parent, 1);
             }
         }
-        else
-        {
-            let parent = current_property.parent;
+    }
 
-            if (parent !== undefined)
-            {
-                parent.children = undefined;
             }
         }
     }

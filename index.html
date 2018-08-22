@@ -193,13 +193,12 @@
         let partition = d3.layout.partition()
                           .size([tree_height, tree_width])
                           .value(function (leaf_tree_node) {
-                              let leaf_node_id = leaf_tree_node.node_id;
-                              let leaf_node_global_tree = genome_properties_tree.node_index[leaf_node_id];
+                              let leaf_node_in_global_tree = genome_properties_tree.node_index[leaf_tree_node.node_id];
 
                               let number_of_childs = 1;
-                              if (leaf_node_global_tree.enabled)
+                              if (leaf_node_in_global_tree.enabled)
                               {
-                                  number_of_childs = leaf_node_global_tree.children.length;
+                                  number_of_childs = leaf_node_in_global_tree.children.length;
                               }
 
                               return number_of_childs;
