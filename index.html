@@ -184,7 +184,7 @@
            });
     }
 
-    function draw_tree(genome_properties_tree, global_parameters, tree_parameters, tree)
+    function draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree)
     {
         let tree_height = calculate_tree_height(genome_properties_tree, global_parameters);
         let tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
@@ -192,7 +192,6 @@
         let partition = d3.layout.partition()
                           .size([tree_height, tree_width])
                           .value(function (leaf_tree_node) {
-                              console.log(leaf_tree_node);
                               let leaf_node_id = leaf_tree_node.node_id;
                               let leaf_node_global_tree = genome_properties_tree.node_index[leaf_node_id];
 
@@ -202,9 +201,7 @@
                                   number_of_childs = leaf_node_global_tree.children.length;
                               }
 
-                              console.log(number_of_childs);
                               return number_of_childs;
-                          });
 
         let nodes = partition.nodes(genome_properties_tree.tree_no_leaves);
 
@@ -226,6 +223,13 @@
             })
             .style("fill", function () {
                 return ' #A7A9AD';
+            })
+            .on("click", function (leaf_tree_node) {
+                let leaf_node_id = leaf_tree_node.node_id;
+                genome_properties_tree.switch_node_and_children_enabled_state(leaf_node_id);
+                $('.diagram').remove();
+                draw_diagram(diagram_parameters, genome_properties_tree);
+                d3.event.stopPropagation();
             });
 
         tree.selectAll(".label")
@@ -266,6 +270,7 @@
 
         let svg = d3.select('.heatmap')
                     .append("svg")
+                    .attr("class", "diagram")
                     .attr("width", svg_width)
                     .attr("height", svg_height);
 
@@ -279,7 +284,7 @@
                       .attr("transform", "translate(" + (margin_parameters.left) + "," + diagram_top_offset + ")");
 
         draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap);
-        draw_tree(genome_properties_tree, global_parameters, tree_parameters, tree);
+        draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree);
     }
 
     $.getJSON("data/example_genome_property.json", function (genome_properties_data) {
