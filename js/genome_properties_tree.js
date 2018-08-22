@@ -208,8 +208,4 @@ function Genome_Properties_Tree(genome_properties_json)
             }
         }
     }
-
-            }
-        }
-    }
 }
