@@ -209,9 +209,29 @@ function Genome_Properties_Tree(genome_properties_json)
         }
     }
 
+    function get_global_leaves(current_property)
+    {
+        let nodes = [];
+        if (current_property.children !== undefined)
+        {
+            let children = current_property.children;
+            for (let child in children)
+            {
+                const child_node_data = get_global_leaves(children[child]);
+                nodes = nodes.concat(child_node_data);
+            }
+        }
+        else
+        {nodes.push(current_property);
+
+        }
+
+        return nodes;
+    }
+
     function global_leaf_parents(genome_properties_tree)
     {
-        let leafs = get_leafs(genome_properties_tree);
+        let leafs = get_global_leaves(genome_properties_tree);
 
         let parents = [];
         for (let leaf_index in leafs) {
