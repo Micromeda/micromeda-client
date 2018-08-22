@@ -82,7 +82,7 @@
       {
         "property_id": "GenProp1075",
         "name": "Ferrous iron transport Feo system",
-        "enabled": false,
+        "enabled": true,
         "result": [
           "PARTIAL",
           "PARTIAL",
