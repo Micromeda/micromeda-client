@@ -187,6 +187,8 @@
 
     function draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree)
     {
+        const leaf_parent_ids = genome_properties_tree.leaf_parents().map(function (parent) {return parent.node_id});
+
         let tree_height = calculate_tree_height(genome_properties_tree, global_parameters);
         let tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
 
@@ -223,8 +225,14 @@
             .attr("height", function (leaf_tree_node) {
                 return (leaf_tree_node.dx - global_parameters['row_spacer']);
             })
-            .style("fill", function () {
-                return ' #A7A9AD';
+            .style("fill", function (leaf_tree_node) {
+                let color = '#A7A9AD';
+                if ($.inArray(leaf_tree_node.node_id, leaf_parent_ids) !== -1)
+                {
+                    color = '#2e2e2d';
+                }
+
+                return color;
             })
             .on("click", function (leaf_tree_node) {
                 let leaf_node_id = leaf_tree_node.node_id;

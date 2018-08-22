@@ -11,7 +11,7 @@ function Genome_Properties_Tree(genome_properties_json)
     this.number_of_leaves = function () {return get_number_of_leaves(this.tree);};
     this.max_nodes_to_leaf = function () {return max_node_to_leaf(this.leafs());};
     this.tree_no_leaves = function () {return tree_no_leaves(this.tree);};
-
+    this.leaf_parents = function () {return global_leaf_parents(this.tree);};
     this.switch_node_and_children_enabled_state = function (node_id) {
         switch_node_and_children_enabled_state(node_id, this.node_index);
     };
@@ -209,7 +209,20 @@ function Genome_Properties_Tree(genome_properties_json)
         }
     }
 
+    function global_leaf_parents(genome_properties_tree)
+    {
+        let leafs = get_leafs(genome_properties_tree);
+
+        let parents = [];
+        for (let leaf_index in leafs) {
+            let leaf_property = leafs[leaf_index];
+            let leaf_parent = leaf_property.parent;
+            let parent_already_seen = $.inArray(leaf_parent, parents);
+            if (parent_already_seen === -1){
+                parents.push(leaf_parent)
             }
         }
+
+        return parents
     }
 }
