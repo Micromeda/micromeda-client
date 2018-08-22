@@ -51,7 +51,8 @@ function Genome_Properties_Tree(genome_properties_json)
 
     function undoubly_link_tree(current_property)
     {
-        if (current_property.parent !== undefined){
+        if (current_property.parent !== undefined)
+        {
             current_property.parent = undefined
         }
 
@@ -121,7 +122,8 @@ function Genome_Properties_Tree(genome_properties_json)
             let current_leaf_node_sample_results = current_leaf_node['result'];
 
             let sample_name_counter = 0;
-            for (let result_index in current_leaf_node_sample_results){
+            for (let result_index in current_leaf_node_sample_results)
+            {
 
                 let heatmap_cell_data = {};
                 heatmap_cell_data.propertyName = current_leaf_node['name'];
@@ -130,10 +132,12 @@ function Genome_Properties_Tree(genome_properties_json)
 
                 heatmap_data.push(heatmap_cell_data);
 
-                if (sample_name_counter === (number_of_samples - 1)) {
+                if (sample_name_counter === (number_of_samples - 1))
+                {
                     sample_name_counter = 0
                 }
-                else {
+                else
+                {
                     sample_name_counter++
                 }
             }
@@ -166,9 +170,9 @@ function Genome_Properties_Tree(genome_properties_json)
         return global_max_node_hop
     }
 
-    function switch_node_and_children_enabled_state(node_id, genome_properties_tree)
+    function switch_node_and_children_enabled_state(node_id, node_index)
     {
-        let current_genome_property = genome_properties_tree.node_index[node_id];
+        let current_genome_property = node_index[node_id];
         let enabled_property = 'enabled';
         let enable_state = !current_genome_property[enabled_property];
 
@@ -210,10 +214,12 @@ function Genome_Properties_Tree(genome_properties_json)
                 prune_all_leafs(children[child]);
             }
         }
-        else {
+        else
+        {
             let parent = current_property.parent;
 
-            if (parent !== undefined){
+            if (parent !== undefined)
+            {
                 parent.children = undefined;
             }
         }
