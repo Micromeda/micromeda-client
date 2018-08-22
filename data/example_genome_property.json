@@ -1,8 +1,8 @@
 {
   "sample_names": [
-    "Sample1",
-    "Sample2",
-    "Sample3"
+    "Organism_1",
+    "Organism_2",
+    "Organism_3"
   ],
   "property_tree": {
     "property_id": "GenProp0071",
