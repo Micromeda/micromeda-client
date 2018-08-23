@@ -1,0 +1,127 @@
+{
+  "sample_names": [
+    "Organism_1",
+    "Organism_2",
+    "Organism_3"
+  ],
+  "property_tree": {
+    "property_id": "GenProp0071",
+    "name": "Transport",
+    "enabled": true,
+    "result": [
+      "PARTIAL",
+      "PARTIAL",
+      "PARTIAL"
+    ],
+    "children": [
+      {
+        "property_id": "GenProp0179",
+        "name": "Protein transport",
+        "enabled": true,
+        "result": [
+          "PARTIAL",
+          "PARTIAL",
+          "PARTIAL"
+        ],
+        "children": [
+          {
+            "property_id": "GenProp0053",
+            "name": "Type II Secretion",
+            "enabled": true,
+            "result": [
+              "PARTIAL",
+              "PARTIAL",
+              "PARTIAL"
+            ],
+            "children": [
+              {
+                "step_id": "1",
+                "name": "Type II secretion system protein C",
+                "enabled": true,
+                "result": [
+                  "YES",
+                  "YES",
+                  "YES"
+                ]
+              },
+              {
+                "step_id": "2",
+                "name": "Type II secretion system protein L",
+                "enabled": true,
+                "required": true,
+                "result": [
+                  "YES",
+                  "NO",
+                  "NO"
+                ]
+              },
+              {
+                "step_id": "3",
+                "name": "Type II secretion system protein M",
+                "enabled": true,
+                "result": [
+                  "NO",
+                  "PARTIAL",
+                  "PARTIAL"
+                ]
+              },
+              {
+                "step_id": "4",
+                "name": "Type II secretion system protein K",
+                "enabled": true,
+                "result": [
+                  "PARTIAL",
+                  "NO",
+                  "YES"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "property_id": "GenProp1075",
+        "name": "Ferrous iron transport Feo system",
+        "enabled": true,
+        "result": [
+          "PARTIAL",
+          "PARTIAL",
+          "PARTIAL"
+        ],
+        "children": [
+          {
+            "step_id": "1",
+            "name": "Ferrous iron transport protein A",
+            "enabled": true,
+            "result": [
+              "YES",
+              "YES",
+              "YES"
+            ]
+          },
+          {
+            "step_id": "2",
+            "name": "Ferrous iron transport protein B",
+            "enabled": true,
+            "required": true,
+            "result": [
+              "YES",
+              "NO",
+              "NO"
+            ]
+          },
+          {
+            "step_id": "3",
+            "name": "Ferrous iron transport protein C",
+            "enabled": true,
+            "result": [
+              "NO",
+              "PARTIAL",
+              "PARTIAL"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
