@@ -208,7 +208,7 @@ function Genome_Properties_Tree(genome_properties_json)
             }
         }
     }
-
+  
     function get_global_leaves(current_property)
     {
         let nodes = [];
