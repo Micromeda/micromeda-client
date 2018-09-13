@@ -16,13 +16,12 @@
     "axes": {
       "x_axis_label_offset": 100,
       "x_axis_label_width": 100,
-      "y_axis_label_offset": -2,
+      "y_axis_label_offset": -1,
       "y_axis_label_width": 400
     }
   },
   "tree": {
     "cell_width": 25,
-    "label_width": 10,
-    "column_spacer": 20
+    "column_spacer": 2
   }
 }
