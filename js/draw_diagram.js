@@ -229,12 +229,8 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
 
             return color;
         })
-        .on("click", function (leaf_tree_node) {
-            let leaf_node_id = leaf_tree_node.node_id;
-            genome_properties_tree.switch_node_and_children_enabled_state(leaf_node_id);
-            $('.diagram').remove();
-            draw_diagram(diagram_parameters, genome_properties_tree);
-            d3.event.stopPropagation();
+        .on("click", function (clicked_tree_node) {
+            draw_updated_tree(clicked_tree_node, genome_properties_tree, diagram_parameters);
         });
 
     /* Add tree cell labels. */
@@ -246,7 +242,10 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
         .attr("class", "label")
         .attr("dy", ".35em")
         .attr("transform", function (leaf_tree_node) {
-            return "translate(" + (leaf_tree_node.y + tree_parameters['column_spacer']) + "," + (leaf_tree_node.x + leaf_tree_node.dx / 2) + ")rotate(270)";
+            return "translate(" + (leaf_tree_node.y +
+                tree_parameters['column_spacer']) + "," +
+                (leaf_tree_node.x + leaf_tree_node.dx / 2) +
+                ")rotate(270)";
         })
         .text(function (leaf_tree_node) {
             return leaf_tree_node.name;
@@ -297,4 +296,21 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
 
     draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap);
     draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree);
+}
+
+/**
+ * Once a node in the tree is clicked. Change the state of the tree nodes children on or off and redraw the diagram.
+ *
+ * @param {object} clicked_tree_node: The tree node that was clicked.
+ * @param {object} genome_properties_tree: A genome properties tree object from the server.
+ * @param {object} diagram_parameters: The global parameters for the diagram from the server.
+ */
+function draw_updated_tree(clicked_tree_node, genome_properties_tree, diagram_parameters)
+{
+    d3.event.stopPropagation();
+
+    let leaf_node_id = clicked_tree_node.node_id;
+    genome_properties_tree.switch_node_and_children_enabled_state(leaf_node_id);
+    $('.diagram').remove();
+    draw_diagram(genome_properties_tree, diagram_parameters);
 }
