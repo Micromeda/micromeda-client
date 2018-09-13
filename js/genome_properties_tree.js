@@ -1,31 +1,49 @@
+/**
+ * Created by: Lee Bergstrand (2018)
+ * Description: An object for representing the genome properties tree.
+ */
+
+
+/**
+ * A function to be used as a class for representing the genome properties tree.
+ *
+ * @param {object} genome_properties_json: The raw json of
+ * @constructor
+ */
 function Genome_Properties_Tree(genome_properties_json)
 {
     this.sample_names = genome_properties_json['sample_names'];
     this.tree = genome_properties_json['property_tree'];
     this.node_index = create_node_index(this.tree);
-    doubly_link_tree(this.tree);
+    add_child_to_parent_links(this.tree);
 
     this.nodes = function () {return get_nodes(this.tree);};
-    this.leafs = function () {return get_leafs(this.tree);};
-    this.leaf_data = function () {return get_leaf_data(this.tree, this.sample_names);};
-    this.number_of_leaves = function () {return get_number_of_leaves(this.tree);};
-    this.max_nodes_to_leaf = function () {return max_node_to_leaf(this.leafs());};
-    this.tree_no_leaves = function () {return tree_no_leaves(this.tree);};
+    this.leafs = function () {return get_leaf_nodes(this.tree);};
+    this.leaf_data = function () {return get_heatmap_data(this.tree, this.sample_names);};
+    this.number_of_leaves = function () {return get_number_of_leaf_nodes(this.tree);};
+    this.max_nodes_to_leaf = function () {return get_max_tree_depth(this.tree);};
+    this.tree_no_leaves = function () {return get_genome_properties_tree_with_leaves_removed(this.tree);};
     this.leaf_parents = function () {return global_leaf_parents(this.tree);};
     this.switch_node_and_children_enabled_state = function (node_id) {
-        switch_node_and_children_enabled_state(node_id, this.node_index);
+        invert_child_enabled_state(this.node_index, node_id);
     };
 
-    function create_node_index(genome_properties_tree)
+    /**
+     * Creates a object which points to every node in the genome properties tree. The each node is keyed by node id.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {object} An object, keyed by node_id, which points to every node in the genome properties tree.
+     */
+    function create_node_index(root_genome_properties_node)
     {
         let node_index = {};
         let node_identifier = 0;
 
-        let nodes = get_nodes(genome_properties_tree);
+        let all_nodes = get_nodes(root_genome_properties_node);
 
-        for (let node in nodes)
+        for (let node in all_nodes)
         {
-            let current_property = nodes[node];
+            let current_property = all_nodes[node];
             current_property.node_id = node_identifier;
             node_index[node_identifier] = current_property;
             node_identifier++;
@@ -34,53 +52,92 @@ function Genome_Properties_Tree(genome_properties_json)
         return node_index
     }
 
-    function doubly_link_tree(current_property)
+    /**
+     * Adds reverse links from child to parent to each genome properties tree node.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     */
+    function add_child_to_parent_links(root_genome_properties_node)
     {
-        if (current_property.children !== undefined)
+        if (root_genome_properties_node.children !== undefined)
         {
-            let children = current_property.children;
+            let children = root_genome_properties_node.children;
             for (let child in children)
             {
                 let child_property = children[child];
 
-                child_property.parent = current_property;
-                doubly_link_tree(child_property);
+                child_property.parent = root_genome_properties_node;
+                add_child_to_parent_links(child_property);
             }
         }
     }
 
-    function undoubly_link_tree(current_property)
+    /**
+     * Removes reverse links from child to parent from each genome properties tree node.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     */
+    function remove_child_to_parent_links(root_genome_properties_node)
     {
-        if (current_property.parent !== undefined)
+        if (root_genome_properties_node.parent !== undefined)
         {
-            current_property.parent = undefined
+            root_genome_properties_node.parent = undefined
         }
 
-        if (current_property.children !== undefined)
+        if (root_genome_properties_node.children !== undefined)
         {
-            let children = current_property.children;
+            let children = root_genome_properties_node.children;
             for (let child in children)
             {
-                undoubly_link_tree(children[child]);
+                remove_child_to_parent_links(children[child]);
             }
         }
     }
 
-    function get_nodes(current_property, only_leaves = false)
+    /**
+     * Gets all the leaf nodes of the genome properties tree.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {array} An array of leaf nodes.
+     */
+    function get_leaf_nodes(root_genome_properties_node)
+    {
+        return get_nodes(root_genome_properties_node, true)
+    }
+
+    /**
+     * Gets the number leaf nodes of the genome properties tree.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {number} The number of leaf nodes.
+     */
+    function get_number_of_leaf_nodes(root_genome_properties_node)
+    {
+        return get_leaf_nodes(root_genome_properties_node).length;
+    }
+
+    /**
+     * Gets all the nodes in the genome properties tree.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @param {boolean} only_leaves: If true, return leaf nodes only.
+     * @return {array} An array of every node.
+     */
+    function get_nodes(root_genome_properties_node, only_leaves = false)
     {
         let nodes = [];
         let property_is_enabled = true;
 
-        let property_has_children = (current_property.children !== undefined);
+        let property_has_children = (root_genome_properties_node.children !== undefined);
 
         if (only_leaves === true)
         {
-            property_is_enabled = current_property.enabled;
+            property_is_enabled = root_genome_properties_node.enabled;
         }
 
         if (property_has_children && property_is_enabled)
         {
-            let children = current_property.children;
+            let children = root_genome_properties_node.children;
             for (let child in children)
             {
                 const child_node_data = get_nodes(children[child], only_leaves);
@@ -89,31 +146,77 @@ function Genome_Properties_Tree(genome_properties_json)
         }
         else
         {
-            nodes.push(current_property);
+            nodes.push(root_genome_properties_node);
         }
 
         if ((only_leaves !== true) && property_has_children)
         {
-            nodes.push(current_property);
+            nodes.push(root_genome_properties_node);
         }
 
         return nodes
     }
 
-    function get_leafs(current_property)
+    /**
+     * Gets all the leaf nodes of the genome properties tree, however, disregards parents being disabled.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {Array} An array of leaf nodes.
+     */
+    function get_global_leaf_nodes(root_genome_properties_node)
     {
-        return get_nodes(current_property, true)
+        let nodes = [];
+        if (root_genome_properties_node.children !== undefined)
+        {
+            let children = root_genome_properties_node.children;
+            for (let child in children)
+            {
+                const child_node_data = get_global_leaf_nodes(children[child]);
+                nodes = nodes.concat(child_node_data);
+            }
+        }
+        else
+        {
+            nodes.push(root_genome_properties_node);
+        }
+
+        return nodes;
     }
 
-    function get_number_of_leaves(current_property)
+    /**
+     * Gets all the parents of the leaf nodes of the genome properties tree, however, disregards parents being disabled.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {Array} An array of parents of the leaf nodes.
+     */
+    function global_leaf_parents(root_genome_properties_node)
     {
-        return get_leafs(current_property).length;
+        let leafs = get_global_leaf_nodes(root_genome_properties_node);
+
+        let parents = [];
+        for (let leaf_index in leafs) {
+            let leaf_property = leafs[leaf_index];
+            let leaf_parent = leaf_property.parent;
+            let parent_already_seen = $.inArray(leaf_parent, parents);
+            if (parent_already_seen === -1){
+                parents.push(leaf_parent)
+            }
+        }
+
+        return parents
     }
 
-    function get_leaf_data(genome_properties_tree, sample_names)
+    /**
+     * Gets data for each cell in the heatmap.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @param {array} sample_names: The names of the samples to be used for the x-axis of the heatmap.
+     * @return {array} An array of objects representing each heatmap cell.
+     */
+    function get_heatmap_data(root_genome_properties_node, sample_names)
     {
         let heatmap_data = [];
-        let leaf_nodes = get_leafs(genome_properties_tree);
+        let leaf_nodes = get_leaf_nodes(root_genome_properties_node);
         let number_of_samples = sample_names.length;
 
         for (let node in leaf_nodes)
@@ -146,12 +249,22 @@ function Genome_Properties_Tree(genome_properties_json)
         return heatmap_data
     }
 
-    function max_node_to_leaf(leafs)
+    /**
+     * In the genome properties tree, not all leaf nodes are at the same level. There are more hops from root
+     * to leaf for some branches than others. This function finds the longest route from root to leaf in the tree and
+     * records of nodes that it passes through.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {number} The maximum number of nodes from root to leaf.
+     */
+    function get_max_tree_depth(root_genome_properties_node)
     {
+        let leaf_nodes = get_leaf_nodes(root_genome_properties_node);
+
         let global_max_node_hop = 0;
-        for (let leaf_index in leafs)
+        for (let leaf_index in leaf_nodes)
         {
-            let leaf = leafs[leaf_index];
+            let leaf = leaf_nodes[leaf_index];
 
             let current_leaf_parent_hopes = 0;
 
@@ -170,9 +283,16 @@ function Genome_Properties_Tree(genome_properties_json)
         return global_max_node_hop
     }
 
-    function switch_node_and_children_enabled_state(node_id, node_index)
+    /**
+     * For a given parent node, flip all child nodes enabled state.
+     *
+     * @param {object} node_index: An object, keyed by node_id, which points to every node in the genome properties tree.
+     * @param {number} parent_node_id: The unique node identifier of the parent genome property.
+     */
+    /* TODO: Could inverting the child's state turn on nodes that we don't want on? */
+    function invert_child_enabled_state(node_index, parent_node_id)
     {
-        let current_genome_property = node_index[node_id];
+        let current_genome_property = node_index[parent_node_id];
         let children = current_genome_property.children;
         if (children !== undefined) {
             for (let child_index in children){
@@ -182,20 +302,35 @@ function Genome_Properties_Tree(genome_properties_json)
         }
     }
 
-    function tree_no_leaves(genome_properties_tree)
+    /**
+     * Strips the leafs from a genome properties the tree. The parents of these leafs become the new leafs.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {object} A deep copy of the original tree with the leafs removed.
+     */
+    function get_genome_properties_tree_with_leaves_removed(root_genome_properties_node)
     {
-        undoubly_link_tree(genome_properties_tree);
-        let pruned_genome_properties_tree = $.extend(true, {}, genome_properties_tree);
-        doubly_link_tree(genome_properties_tree);
-        doubly_link_tree(pruned_genome_properties_tree);
+        remove_child_to_parent_links(root_genome_properties_node);
+
+        // Deep copy the genome properties tree using jQuery.
+        let pruned_genome_properties_tree = $.extend(true, {}, root_genome_properties_node);
+
+        add_child_to_parent_links(root_genome_properties_node);
+        add_child_to_parent_links(pruned_genome_properties_tree);
         prune_all_leafs(pruned_genome_properties_tree);
 
         return pruned_genome_properties_tree
     }
 
-    function prune_all_leafs(genome_properties_tree)
+    /**
+     * Strips the leafs from a genome properties the tree. The parents of these leafs become the new leafs.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     * @return {object} A the original tree with the leafs removed.
+     */
+    function prune_all_leafs(root_genome_properties_node)
     {
-        let leafs = get_leafs(genome_properties_tree);
+        let leafs = get_leaf_nodes(root_genome_properties_node);
 
         for (let leaf_index in leafs) {
             let leaf_property = leafs[leaf_index];
@@ -207,42 +342,5 @@ function Genome_Properties_Tree(genome_properties_json)
                 all_parents_children.splice(leafs_index_in_parent, 1);
             }
         }
-    }
-  
-    function get_global_leaves(current_property)
-    {
-        let nodes = [];
-        if (current_property.children !== undefined)
-        {
-            let children = current_property.children;
-            for (let child in children)
-            {
-                const child_node_data = get_global_leaves(children[child]);
-                nodes = nodes.concat(child_node_data);
-            }
-        }
-        else
-        {nodes.push(current_property);
-
-        }
-
-        return nodes;
-    }
-
-    function global_leaf_parents(genome_properties_tree)
-    {
-        let leafs = get_global_leaves(genome_properties_tree);
-
-        let parents = [];
-        for (let leaf_index in leafs) {
-            let leaf_property = leafs[leaf_index];
-            let leaf_parent = leaf_property.parent;
-            let parent_already_seen = $.inArray(leaf_parent, parents);
-            if (parent_already_seen === -1){
-                parents.push(leaf_parent)
-            }
-        }
-
-        return parents
     }
 }

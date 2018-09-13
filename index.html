@@ -8,6 +8,10 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 
     <style>
+        .node:hover {
+            fill: #b0b0b0;
+            cursor: pointer;
+        }
 
         .node {
             fill: #ddd;
@@ -17,6 +21,23 @@
         .label {
             font: 10px sans-serif;
             text-anchor: middle;
+        }
+
+        .link_out {
+            fill: #848484;
+        }
+
+        .link_out:hover {
+            fill: black;
+            cursor: help;
+        }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+            stroke-width: 2px;
         }
 
     </style>
@@ -66,7 +87,7 @@
 
             let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
 
-            draw_diagram(diagram_parameters, genome_properties_tree);
+            draw_diagram(genome_properties_tree, diagram_parameters);
         });
     });
 </script>
