@@ -95,9 +95,8 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
         return item.genome;
     })).values();
 
-    let y_elements = d3.set(heatmap_data.map(function (item) {
-        return item.propertyName;
-    })).values();
+    let y_elements = deduplicated_y_elements(heatmap_data, x_elements);
+    console.log(y_elements);
 
     let total_heatmap_width = x_elements.length * (heatmap_cell_width + heatmap_column_spacer);
 
@@ -167,6 +166,25 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
                      .attr("transform", function () {
                          return "rotate(-65)";
                      });
+}
+
+/**
+ * Since it is possible to have repeated genome properties on cousin branches of the tree we cannot
+ * return just set set of y elements.
+ *
+ * @param {array} heatmap_data: A list of per cell heatmap.
+ * @param {array} x_elements: The x_elements representing columns of the heatmap.
+ * @return {array} The y elements with successive .
+ */
+function deduplicated_y_elements(heatmap_data, x_elements)
+{
+    const number_of_samples = x_elements.length;
+
+    return d3.map(heatmap_data.map(function (item) {
+        return item.propertyName;
+    })).values().filter(function (value, index) {
+        return index % number_of_samples === 0;
+    });
 }
 
 /**
