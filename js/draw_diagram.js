@@ -247,18 +247,18 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       return leaf_tree_node.y + tree_parameters['column_spacer'];
                   })
                   .attr("y", function (leaf_tree_node) {
-                      return leaf_tree_node.x + leaf_tree_node.dx - global_parameters['row_height']/3;
+                      return leaf_tree_node.x + leaf_tree_node.dx - global_parameters['row_height'] / 3;
                   })
                   .attr("width", function () {
                       return tree_parameters['cell_width'];
                   })
                   .attr("height", function () {
-                      return (global_parameters['row_height']/3 - global_parameters['row_spacer']);
+                      return (global_parameters['row_height'] / 3 - global_parameters['row_spacer']);
                   }).on("click", function (clicked_tree_node) {
-                      let url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + clicked_tree_node.property_id;
-                      let win = window.open(url, '_blank');
-                      win.focus();
-                  });
+        let url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + clicked_tree_node.property_id;
+        let win = window.open(url, '_blank');
+        win.focus();
+    });
 }
 
 /**
