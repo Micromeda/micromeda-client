@@ -199,6 +199,16 @@ function activate_link_out(clicked_tree_node)
     win.focus();
 }
 
+function should_node_be_filtered(leaf_tree_node, virtual_leaf_ids)
+{
+    let keep_node = false;
+    if ($.inArray(leaf_tree_node.node_id, virtual_leaf_ids) < 0)
+    {
+        keep_node = true
+    }
+    return keep_node
+}
+
 /**
  * Draws the heatmap portion of the genome properties visualisation.
  *
@@ -258,15 +268,15 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       return (leaf_tree_node.dx - global_parameters['row_spacer']);
                   })
                   .on("click", function (clicked_tree_node) {
-                      draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters);
+                      if ($.inArray(clicked_tree_node.node_id, real_leaf_ids) < 0) {
+                          draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters);
+                      }
                   });
 
     /* Add tree cell labels. */
     tree_svg_group.selectAll(".label")
                   .data(nodes.filter(function (leaf_tree_node) {
-                      let keep_node = false;
-                      if ($.inArray(leaf_tree_node.node_id, virtual_leaf_ids) < 0){keep_node = true}
-                      return keep_node
+                      return should_node_be_filtered(leaf_tree_node, virtual_leaf_ids);
                   }))
                   .enter().append("text")
                   .attr("class", "label")
@@ -282,9 +292,12 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
 
     /* Create tree out-link boxes. */
     tree_svg_group.selectAll(".link_out")
-                  .data(nodes)
-                  .enter().append("rect")
+                  .data(nodes.filter(function (leaf_tree_node) {
+                      return should_node_be_filtered(leaf_tree_node, real_leaf_ids);
+                  }))
+                  .enter().append("image")
                   .attr("class", "link_out")
+                  .attr("xlink:href", "assets/External.svg")
                   .attr("x", function (leaf_tree_node) {
                       return leaf_tree_node.y + tree_parameters['column_spacer'];
                   })
