@@ -37,7 +37,7 @@ function calculate_tree_width(genome_properties_tree, tree_parameters)
     let tree_cell_width = tree_parameters['cell_width'];
     let tree_column_spacer = tree_parameters['column_spacer'];
 
-    return (tree_column_spacer + tree_cell_width) * max_number_of_nodes_to_leaf;
+    return (tree_column_spacer + tree_cell_width) * (max_number_of_nodes_to_leaf + 1); // TODO: Fix node to leaf output.
 }
 
 /**
@@ -96,7 +96,6 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
     })).values();
 
     let y_elements = deduplicated_y_elements(heatmap_data, x_elements);
-    console.log(y_elements);
 
     let total_heatmap_width = x_elements.length * (heatmap_cell_width + heatmap_column_spacer);
 
@@ -188,6 +187,19 @@ function deduplicated_y_elements(heatmap_data, x_elements)
 }
 
 /**
+ * Takes the clicked tree node and creates a new tab with information on
+ * the EBI website about the genome property for which the node represents.
+ *
+ * @param clicked_tree_node: The tree node that was clicked.
+ */
+function activate_link_out(clicked_tree_node)
+{
+    let url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + clicked_tree_node.property_id;
+    let win = window.open(url, '_blank');
+    win.focus();
+}
+
+/**
  * Draws the heatmap portion of the genome properties visualisation.
  *
  * @param {object} genome_properties_tree: A genome properties tree object from the server.
@@ -198,8 +210,11 @@ function deduplicated_y_elements(heatmap_data, x_elements)
  */
 function draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree_svg_group)
 {
-    let tree_height = calculate_tree_height(genome_properties_tree, global_parameters);
-    let tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
+    const tree_height = calculate_tree_height(genome_properties_tree, global_parameters);
+    const tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
+
+    const virtual_leaf_ids = genome_properties_tree.leafs().map(function (leaf) {return leaf.node_id});
+    const real_leaf_ids = genome_properties_tree.leafs(false).map(function (leaf) {return leaf.node_id});
 
     let partition = d3.layout.partition()
                       .size([tree_height, tree_width])
@@ -207,7 +222,7 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                           let leaf_node_in_global_tree = genome_properties_tree.node_index[leaf_tree_node.node_id];
 
                           let number_of_childs = 1;
-                          if (leaf_node_in_global_tree.enabled)
+                          if (leaf_node_in_global_tree.enabled && leaf_node_in_global_tree.children)
                           {
                               number_of_childs = leaf_node_in_global_tree.children.length;
                           }
@@ -216,13 +231,20 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       })
                       .sort(null);
 
-    let nodes = partition.nodes(genome_properties_tree.tree_no_leaves());
+    let nodes = partition.nodes(genome_properties_tree.pruned_tree());
 
     /* Create tree cells. */
     tree_svg_group.selectAll(".node")
                   .data(nodes)
                   .enter().append("rect")
-                  .attr("class", "node")
+                  .attr("class", function (leaf_tree_node) {
+                      if ($.inArray(leaf_tree_node.node_id, real_leaf_ids) < 0) {
+                          return 'node'
+                      }
+                      else {
+                          return 'node node-terminal'
+                      }
+                  })
                   .attr("x", function (d) {
                       return d.y + tree_parameters['column_spacer'];
                   })
@@ -236,13 +258,15 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       return (leaf_tree_node.dx - global_parameters['row_spacer']);
                   })
                   .on("click", function (clicked_tree_node) {
-                      draw_updated_tree(clicked_tree_node, genome_properties_tree, diagram_parameters);
+                      draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters);
                   });
 
     /* Add tree cell labels. */
     tree_svg_group.selectAll(".label")
                   .data(nodes.filter(function (leaf_tree_node) {
-                      return leaf_tree_node.dy > 6;
+                      let keep_node = false;
+                      if ($.inArray(leaf_tree_node.node_id, virtual_leaf_ids) < 0){keep_node = true}
+                      return keep_node
                   }))
                   .enter().append("text")
                   .attr("class", "label")
@@ -256,7 +280,7 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       return leaf_tree_node.name;
                   });
 
-    /* Create tree cells. */
+    /* Create tree out-link boxes. */
     tree_svg_group.selectAll(".link_out")
                   .data(nodes)
                   .enter().append("rect")
@@ -265,17 +289,15 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       return leaf_tree_node.y + tree_parameters['column_spacer'];
                   })
                   .attr("y", function (leaf_tree_node) {
-                      return leaf_tree_node.x + leaf_tree_node.dx - global_parameters['row_height'] / 3;
+                      return leaf_tree_node.x + leaf_tree_node.dx - tree_parameters['link_out_height'];
                   })
                   .attr("width", function () {
                       return tree_parameters['cell_width'];
                   })
                   .attr("height", function () {
-                      return (global_parameters['row_height'] / 3 - global_parameters['row_spacer']);
+                      return (tree_parameters['link_out_height'] - global_parameters['row_spacer']);
                   }).on("click", function (clicked_tree_node) {
-        let url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + clicked_tree_node.property_id;
-        let win = window.open(url, '_blank');
-        win.focus();
+        activate_link_out(clicked_tree_node);
     });
 }
 
@@ -332,12 +354,12 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
  * @param {object} genome_properties_tree: A genome properties tree object from the server.
  * @param {object} diagram_parameters: The global parameters for the diagram from the server.
  */
-function draw_updated_tree(clicked_tree_node, genome_properties_tree, diagram_parameters)
+function draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters)
 {
     d3.event.stopPropagation();
 
     let leaf_node_id = clicked_tree_node.node_id;
-    genome_properties_tree.switch_node_and_children_enabled_state(leaf_node_id);
+    genome_properties_tree.switch_node_enabled_state(leaf_node_id);
     $('.diagram').remove();
     draw_diagram(genome_properties_tree, diagram_parameters);
 }
