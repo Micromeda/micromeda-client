@@ -116,8 +116,8 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
 
     let yAxis = d3.svg.axis()
                   .scale(yScale)
-                  .tickFormat(function (d) {
-                      return d;
+                  .tickFormat(function (node_id) {
+                      return genome_properties_tree.node_index[node_id].name
                   })
                   .orient("right");
 
@@ -133,7 +133,7 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
                      .attr('width', heatmap_cell_width)
                      .attr('height', row_height)
                      .attr('y', function (heatmap_data_point) {
-                         return yScale(heatmap_data_point.propertyName);
+                         return yScale(heatmap_data_point.node_id);
                      })
                      .attr('x', function (heatmap_data_point) {
                          return xScale(heatmap_data_point.genome);
@@ -180,7 +180,7 @@ function deduplicated_y_elements(heatmap_data, x_elements)
     const number_of_samples = x_elements.length;
 
     return d3.map(heatmap_data.map(function (item) {
-        return item.propertyName;
+        return item.node_id;
     })).values().filter(function (value, index) {
         return index % number_of_samples === 0;
     });
@@ -199,10 +199,18 @@ function activate_link_out(clicked_tree_node)
     win.focus();
 }
 
-function should_node_be_filtered(leaf_tree_node, virtual_leaf_ids)
+
+/**
+ * Determines if a leaf node should be filtered.
+ *
+ * @param leaf_tree_node: The tree node.
+ * @param leaf_ids Ids of valid leaf nodes that should be filtered.
+ * @return {boolean} Should the node be filtered?
+ */
+function should_node_be_filtered(leaf_tree_node, leaf_ids)
 {
     let keep_node = false;
-    if ($.inArray(leaf_tree_node.node_id, virtual_leaf_ids) < 0)
+    if ($.inArray(leaf_tree_node.node_id, leaf_ids) < 0)
     {
         keep_node = true
     }

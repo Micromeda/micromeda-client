@@ -214,6 +214,7 @@ function Genome_Properties_Tree(genome_properties_json)
                 heatmap_cell_data.propertyName = current_leaf_node['name'];
                 heatmap_cell_data.genome = sample_names[sample_name_counter];
                 heatmap_cell_data.propertyStatus = current_leaf_node_sample_results[result_index];
+                heatmap_cell_data.node_id = current_leaf_node.node_id;
 
                 heatmap_data.push(heatmap_cell_data);
 

@@ -6,8 +6,8 @@
     "bottom": 20
   },
   "global": {
-    "top_offset": 100,
-    "row_height": 30,
+    "top_offset": 180,
+    "row_height": 100,
     "row_spacer": 2
   },
   "heatmap": {
@@ -22,6 +22,7 @@
   },
   "tree": {
     "cell_width": 25,
-    "column_spacer": 2
+    "column_spacer": 2,
+    "link_out_height": 20
   }
 }
