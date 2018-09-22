@@ -1,0 +1,40 @@
+.node.node-terminal:hover {
+    cursor: default;
+}
+
+.node:hover {
+    fill: #b0b0b0;
+    cursor: pointer;
+}
+
+.node.node-terminal {
+    fill: #ff9a97;
+    stroke: #fff;
+}
+
+.node {
+    fill: #ddd;
+    stroke: #fff;
+}
+
+.label {
+    font: 12px sans-serif;
+    text-anchor: middle;
+}
+
+.link_out {
+    fill: #848484;
+}
+
+.link_out:hover {
+    fill: black;
+    cursor: help;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+    stroke-width: 2px;
+}
