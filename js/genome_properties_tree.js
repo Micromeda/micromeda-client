@@ -7,7 +7,7 @@
 /**
  * A function to be used as a class for representing the genome properties tree.
  *
- * @param {object} genome_properties_json: The raw json of
+ * @param {object} genome_properties_json: The raw json for the genome properties data from the server.
  * @constructor
  */
 function Genome_Properties_Tree(genome_properties_json)

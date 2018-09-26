@@ -34,7 +34,5 @@
 .axis path,
 .axis line {
     fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
-    stroke-width: 2px;
+    stroke-width: 0;
 }
