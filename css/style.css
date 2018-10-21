@@ -45,14 +45,5 @@
 
 .diagram_header {
     position: fixed;
+    background-color: rgba(255, 255, 255, 0.90);
 }
-
-.diagram_header_background {
-    position: fixed;
-    background-color: white;
-    filter: opacity(0.90);
-    border-bottom: 2px solid black;
-    border-bottom: 2px solid black;
-}
-
-
