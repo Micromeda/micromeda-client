@@ -317,7 +317,7 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                   }))
                   .enter().append("image")
                   .attr("class", "link_out")
-                  .attr("xlink:href", "assets/External.svg")
+                  .attr("xlink:href", "assets/external.svg")
                   .attr("x", function (leaf_tree_node) {
                       return leaf_tree_node.y + tree_parameters['column_spacer'];
                   })

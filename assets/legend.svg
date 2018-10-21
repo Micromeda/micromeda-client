@@ -1,0 +1,22 @@
+<svg width="475" height="375" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+ <g>
+  <title>background</title>
+  <rect fill="#fff" id="canvas_background" height="377" width="477" y="-1" x="-1"/>
+  <g display="none" id="canvasGrid">
+   <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <rect id="yes_colour" height="56" width="59" y="36.4" x="33.5" stroke-width="1.5" stroke="#000" fill="#7b3294"/>
+  <rect id="partial_colour" height="56" width="59" y="118.4" x="33.5" stroke-width="1.5" stroke="#000" fill="#c2a5cf"/>
+  <rect id="no_colour" height="56" width="59" y="198.4" x="33.5" stroke-width="1.5" stroke="#000" fill="#f7f7f7"/>
+  <rect id="step_colour" height="56" width="59" y="282.4" x="33.5" stroke-width="1.5" stroke="#000" fill="#008837"/>
+
+  <text stroke="#000" transform="matrix(5,0,0,4.2,-936.1,-250.4) " xml:space="preserve"  font-family="Helvetica, Arial, sans-serif" font-size="10" id="svg_6" y="78" x="208" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">Yes</text>
+  <text stroke="#000" transform="matrix(5,0,0,4.2,-936.1,-250.4) " xml:space="preserve"  font-family="Helvetica, Arial, sans-serif" font-size="10" id="svg_8" y="97" x="208" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">Partial</text>
+  <text stroke="#000" transform="matrix(5,0,0,4.2,-936.1,-250.4) " xml:space="preserve"  font-family="Helvetica, Arial, sans-serif" font-size="10" id="svg_7" y="116" x="208" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">No</text>
+  <text stroke="#000" transform="matrix(5,0,0,4.2,-936.1,-250.4) " xml:space="preserve"  font-family="Helvetica, Arial, sans-serif" font-size="10" id="svg_10" y="136" x="208" fill-opacity="null" stroke-opacity="null" stroke-width="0" fill="#000000">Property Step</text>
+ </g>
+</svg>
