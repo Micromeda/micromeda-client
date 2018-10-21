@@ -20,15 +20,6 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#">Link</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link disabled" href="#">Disabled</a>
-                </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
                 <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -37,8 +28,22 @@
         </div>
     </nav>
 
-    <div class="visualization container-fluid">
+    <div class="container-fluid">
+        <div class="visualization"></div>
+    </div>
 
+    <div class="container-fluid fixed-bottom legend-row">
+        <div class="row justify-content-end">
+            <div class="col-2">
+                <div class="card text-white bg-info mb-3">
+                    <img class="card-img-top legend" src="assets/legend.svg">
+                    <div class="card-body">
+                        <h5 class="card-title">Legend</h5>
+                        <p class="card-text">Click the grey bar on the left to expand the genome properties heatmap.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
