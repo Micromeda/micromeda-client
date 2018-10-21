@@ -363,14 +363,6 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     let svg_height = diagram_height + top_margin + bottom_margin;
     let svg_width = diagram_width + left_margin + right_margin;
 
-    d3.select('.visualization')
-      .append('div')
-      .attr("class", 'row vis_row')
-      .append("svg")
-      .attr("class", "diagram_header_background")
-      .attr("width", svg_width)
-      .attr("height", top_offset + x_axis_offset);
-
     let diagram_header = d3.select('.visualization')
                            .append('div')
                            .attr("class", 'row vis_row')
@@ -396,11 +388,7 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     let tree = diagram_core.append("g")
                            .attr("transform", "translate(" + (margin_parameters.left) + "," + diagram_top_offset + ")");
 
-
-
-
-    draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters,
-                 heatmap, diagram_header, heatmap_left_offset);
+    draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap, diagram_header, heatmap_left_offset);
     draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree);
 }
 
