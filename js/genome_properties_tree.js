@@ -188,6 +188,7 @@ function Genome_Properties_Tree(genome_properties_json)
 
         return nodes
     }
+
     /**
      * Gets data for each cell in the heatmap.
      *

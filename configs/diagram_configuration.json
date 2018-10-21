@@ -14,7 +14,7 @@
     "cell_width": 25,
     "column_spacer": 2,
     "axes": {
-      "x_axis_label_offset": 100,
+      "x_axis_label_offset": 15,
       "x_axis_label_width": 100,
       "y_axis_label_offset": -1,
       "y_axis_label_width": 400

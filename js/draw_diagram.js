@@ -37,7 +37,7 @@ function calculate_tree_width(genome_properties_tree, tree_parameters)
     let tree_cell_width = tree_parameters['cell_width'];
     let tree_column_spacer = tree_parameters['column_spacer'];
 
-    return (tree_column_spacer + tree_cell_width) * (max_number_of_nodes_to_leaf + 1); // TODO: Fix node to leaf output.
+    return (tree_column_spacer + tree_cell_width) * (max_number_of_nodes_to_leaf + 1);
 }
 
 /**
@@ -80,14 +80,17 @@ function calculate_diagram_height(genome_properties_tree, global_parameters)
  * @param {object} heatmap_parameters: Heatmap settings from the server.
  * @param {g} heatmap_svg_group: The SVG group to which contain the heatmap portion of the visualisation.
  */
-function draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap_svg_group)
+function draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap_svg_group, diagram_header_svg, heatmap_left_offset)
 {
     let heatmap_cell_width = heatmap_parameters['cell_width'];
     let heatmap_column_spacer = heatmap_parameters['column_spacer'];
     let row_height = global_parameters['row_height'];
     let row_spacer = global_parameters['row_spacer'];
+    let diagram_top_offset = global_parameters['top_offset'];
 
     let axes_parameters = heatmap_parameters['axes'];
+    let y_axis_label_offset = axes_parameters['y_axis_label_offset'];
+    let x_axis_label_axis_offset = axes_parameters['x_axis_label_offset'];
 
     let heatmap_data = genome_properties_tree.leaf_data();
 
@@ -123,7 +126,7 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
 
     let colorScale = d3.scale.ordinal()
                        .domain(['NO', 'PARTIAL', 'YES'])
-                       .range(["#737d84", "#FFD700", "#27AE60"]);
+                       .range(["#f7f7f7", "#c2a5cf", "#7b3294"]);
 
     /* Create heatmap cells. */
     heatmap_svg_group.selectAll('rect')
@@ -145,26 +148,28 @@ function draw_heatmap(genome_properties_tree, global_parameters, heatmap_paramet
 
     /* Append the y axis of the heatmap. */
     heatmap_svg_group.append("g")
-                     .attr("class", "y axis")
+                     .attr("class", "y-axis")
                      .call(yAxis)
                      .attr("transform", function () {
-                         return "translate(" + (total_heatmap_width + axes_parameters['y_axis_label_offset']) + ")";
+                         return "translate(" + (total_heatmap_width + y_axis_label_offset) + ")";
                      })
                      .selectAll('text')
                      .attr('font-weight', 'normal');
 
     /* Append the x axis of the heatmap. */
-    heatmap_svg_group.append("g")
-                     .attr("class", "x axis")
-                     .call(xAxis)
-                     .selectAll('text')
-                     .attr('font-weight', 'normal')
-                     .style("text-anchor", "start")
-                     .attr("dx", ".8em")
-                     .attr("dy", ".5em")
-                     .attr("transform", function () {
-                         return "rotate(-65)";
-                     });
+    diagram_header_svg.append("g")
+                      .attr("transform",
+                            "translate(" + heatmap_left_offset + "," + (diagram_top_offset + x_axis_label_axis_offset) + ")")
+                      .attr("class", "x-axis")
+                      .call(xAxis)
+                      .selectAll('text')
+                      .attr('font-weight', 'normal')
+                      .style("text-anchor", "start")
+                      .attr("dx", ".8em")
+                      .attr("dy", ".5em")
+                      .attr("transform", function () {
+                          return "rotate(-65)";
+                      });
 }
 
 /**
@@ -231,8 +236,12 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
     const tree_height = calculate_tree_height(genome_properties_tree, global_parameters);
     const tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
 
-    const virtual_leaf_ids = genome_properties_tree.leafs().map(function (leaf) {return leaf.node_id});
-    const real_leaf_ids = genome_properties_tree.leafs(false).map(function (leaf) {return leaf.node_id});
+    const virtual_leaf_ids = genome_properties_tree.leafs().map(function (leaf) {
+        return leaf.node_id
+    });
+    const real_leaf_ids = genome_properties_tree.leafs(false).map(function (leaf) {
+        return leaf.node_id
+    });
 
     let partition = d3.layout.partition()
                       .size([tree_height, tree_width])
@@ -256,10 +265,12 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                   .data(nodes)
                   .enter().append("rect")
                   .attr("class", function (leaf_tree_node) {
-                      if ($.inArray(leaf_tree_node.node_id, real_leaf_ids) < 0) {
+                      if ($.inArray(leaf_tree_node.node_id, real_leaf_ids) < 0)
+                      {
                           return 'node'
                       }
-                      else {
+                      else
+                      {
                           return 'node node-terminal'
                       }
                   })
@@ -276,7 +287,8 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       return (leaf_tree_node.dx - global_parameters['row_spacer']);
                   })
                   .on("click", function (clicked_tree_node) {
-                      if ($.inArray(clicked_tree_node.node_id, real_leaf_ids) < 0) {
+                      if ($.inArray(clicked_tree_node.node_id, real_leaf_ids) < 0)
+                      {
                           draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters);
                       }
                   });
@@ -334,6 +346,8 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     let global_parameters = diagram_parameters['global'];
     let heatmap_parameters = diagram_parameters['heatmap'];
     let tree_parameters = diagram_parameters['tree'];
+    let top_offset = global_parameters['top_offset'];
+    let x_axis_offset = heatmap_parameters['axes']['x_axis_label_offset'];
 
     let left_margin = margin_parameters['left'];
     let right_margin = margin_parameters['right'];
@@ -349,22 +363,44 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     let svg_height = diagram_height + top_margin + bottom_margin;
     let svg_width = diagram_width + left_margin + right_margin;
 
-    let svg = d3.select('.visualization')
-                .append("svg")
-                .attr("class", "diagram")
-                .attr("width", svg_width)
-                .attr("height", svg_height);
+    d3.select('.visualization')
+      .append('div')
+      .attr("class", 'row vis_row')
+      .append("svg")
+      .attr("class", "diagram_header_background")
+      .attr("width", svg_width)
+      .attr("height", top_offset + x_axis_offset);
+
+    let diagram_header = d3.select('.visualization')
+                           .append('div')
+                           .attr("class", 'row vis_row')
+                           .append("svg")
+                           .attr("class", "diagram_header")
+                           .attr("width", svg_width)
+                           .attr("height", top_offset + x_axis_offset);
+
+    let diagram_core = d3.select('.visualization')
+                         .append('div')
+                         .attr("class", 'row vis_row')
+                         .append("svg")
+                         .attr("class", "diagram")
+                         .attr("width", svg_width)
+                         .attr("height", svg_height);
 
     let diagram_top_offset = (margin_parameters.top + global_parameters['top_offset']);
     let heatmap_left_offset = margin_parameters.left + tree_width + (heatmap_parameters['cell_width'] / 2);
 
-    let heatmap = svg.append("g")
-                     .attr("transform", "translate(" + heatmap_left_offset + "," + diagram_top_offset + ")");
+    let heatmap = diagram_core.append("g")
+                              .attr("transform", "translate(" + heatmap_left_offset + "," + diagram_top_offset + ")");
 
-    let tree = svg.append("g")
-                  .attr("transform", "translate(" + (margin_parameters.left) + "," + diagram_top_offset + ")");
+    let tree = diagram_core.append("g")
+                           .attr("transform", "translate(" + (margin_parameters.left) + "," + diagram_top_offset + ")");
 
-    draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap);
+
+
+
+    draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters,
+                 heatmap, diagram_header, heatmap_left_offset);
     draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree);
 }
 
@@ -382,5 +418,7 @@ function draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram
     let leaf_node_id = clicked_tree_node.node_id;
     genome_properties_tree.switch_node_enabled_state(leaf_node_id);
     $('.diagram').remove();
+    $('.diagram_header').remove();
+    $('.vis_row').remove();
     draw_diagram(genome_properties_tree, diagram_parameters);
 }
