@@ -66,9 +66,7 @@
 <script type="text/javascript">
     $.getJSON("data/gp_assignments.json", function (genome_properties_data) {
         $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
-
             let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
-
             draw_diagram(genome_properties_tree, diagram_parameters);
         });
     });

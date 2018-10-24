@@ -195,15 +195,23 @@ function deduplicated_y_elements(heatmap_data, x_elements)
  * Takes the clicked tree node and creates a new tab with information on
  * the EBI website about the genome property for which the node represents.
  *
- * @param clicked_tree_node: The tree node that was clicked.
+ * @param hovered_tree_node: The tree node that was hovered.
  */
-function activate_link_out(clicked_tree_node)
+function generate_tooltip_html_content(hovered_tree_node)
 {
-    let url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + clicked_tree_node.property_id;
-    let win = window.open(url, '_blank');
-    win.focus();
-}
+    let header = "<h6>" + hovered_tree_node.property_id + "</h6>";
+    let name = "<p>" + hovered_tree_node.name + "</p>";
+    let desc = "<p>" + "This is a mock property description it can be long." + "</p>";
+    let out_links = '<p>Links</p>';
+    let ebi_url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + hovered_tree_node.property_id;
+    let ebi_link = '<a target="_blank" rel="noopener noreferrer" href="' + ebi_url + '">EBI</a>';
 
+    let inner_html = header + name + desc + out_links + ebi_link;
+
+    console.log(inner_html);
+
+    return inner_html
+}
 
 /**
  * Determines if a leaf node should be filtered.
@@ -231,7 +239,8 @@ function should_node_be_filtered(leaf_tree_node, leaf_ids)
  * @param {object} tree_parameters: Heatmap settings from the server.
  * @param {group} tree_svg_group: The SVG group to which contain the heatmap portion of the visualisation.
  */
-function draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree_svg_group)
+function draw_tree(genome_properties_tree, diagram_parameters, global_parameters,
+                   tree_parameters, tree_svg_group, tooltip)
 {
     const tree_height = calculate_tree_height(genome_properties_tree, global_parameters);
     const tree_width = calculate_tree_width(genome_properties_tree, tree_parameters);
@@ -329,9 +338,26 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                   })
                   .attr("height", function () {
                       return (tree_parameters['link_out_height'] - global_parameters['row_spacer']);
-                  }).on("click", function (clicked_tree_node) {
-        activate_link_out(clicked_tree_node);
-    });
+                  })
+                  .on("mouseover", function (hovered_tree_node) {
+                      let tooltip_width = 120;
+
+                      tooltip.transition()
+                             .duration(200)
+                             .style("opacity", .9)
+                             .style("width", tooltip_width + "px");
+
+                      let html = generate_tooltip_html_content(hovered_tree_node);
+
+                      tooltip.html(html)
+                             .style("left", (d3.event.pageX - (tooltip_width/2)) + "px")
+                             .style("top", (d3.event.pageY + 5) + "px");
+                  })
+                  .on("mouseout", function () {
+                      tooltip.transition()
+                             .duration(200)
+                             .style("opacity", 0);
+                  });
 }
 
 /**
@@ -363,6 +389,10 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     let svg_height = diagram_height + top_margin + bottom_margin;
     let svg_width = diagram_width + left_margin + right_margin;
 
+    let tooltip = d3.select("body").append("div")
+                    .attr("class", "tooltip")
+                    .style("opacity", 0);
+
     let diagram_header = d3.select('.visualization')
                            .append('div')
                            .attr("class", 'row vis_row')
@@ -388,8 +418,9 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     let tree = diagram_core.append("g")
                            .attr("transform", "translate(" + (margin_parameters.left) + "," + diagram_top_offset + ")");
 
-    draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap, diagram_header, heatmap_left_offset);
-    draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree);
+    draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap, diagram_header,
+                 heatmap_left_offset);
+    draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree, tooltip);
 }
 
 /**
@@ -406,5 +437,6 @@ function draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram
     let leaf_node_id = clicked_tree_node.node_id;
     genome_properties_tree.switch_node_enabled_state(leaf_node_id);
     $('.vis_row').remove();
+    $('.tooltip').remove();
     draw_diagram(genome_properties_tree, diagram_parameters);
 }
