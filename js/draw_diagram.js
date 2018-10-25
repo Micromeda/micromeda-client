@@ -206,11 +206,7 @@ function generate_tooltip_html_content(hovered_tree_node)
     let ebi_url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + hovered_tree_node.property_id;
     let ebi_link = '<a target="_blank" rel="noopener noreferrer" href="' + ebi_url + '">EBI</a>';
 
-    let inner_html = header + name + desc + out_links + ebi_link;
-
-    console.log(inner_html);
-
-    return inner_html
+    return header + name + desc + out_links + ebi_link
 }
 
 /**
@@ -238,6 +234,7 @@ function should_node_be_filtered(leaf_tree_node, leaf_ids)
  * @param {object} global_parameters: Settings from the server.
  * @param {object} tree_parameters: Heatmap settings from the server.
  * @param {group} tree_svg_group: The SVG group to which contain the heatmap portion of the visualisation.
+ * @param {object} tooltip: The tooltip object.
  */
 function draw_tree(genome_properties_tree, diagram_parameters, global_parameters,
                    tree_parameters, tree_svg_group, tooltip)
@@ -343,20 +340,36 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       let tooltip_width = 120;
 
                       tooltip.transition()
-                             .duration(200)
+                             .duration(500)
                              .style("opacity", .9)
-                             .style("width", tooltip_width + "px");
+                             .style("width", tooltip_width + "px")
+                             .style("display", 'block');
 
                       let html = generate_tooltip_html_content(hovered_tree_node);
 
                       tooltip.html(html)
-                             .style("left", (d3.event.pageX - (tooltip_width/2)) + "px")
-                             .style("top", (d3.event.pageY + 5) + "px");
+                             .style("left", (d3.event.pageX - (tooltip_width / 2)) + "px")
+                             .style("top", (d3.event.pageY) + "px");
+
+                      tooltip
+                          .on("mouseover", function () {
+                              tooltip.transition()
+                                     .duration(0)
+                                     .style("opacity", .9)
+                                     .style("display", 'block');
+                          })
+                          .on("mouseout", function () {
+                              tooltip.transition()
+                                     .duration(500)
+                                     .style("opacity", 0)
+                                     .style("display", 'none');
+                          })
                   })
                   .on("mouseout", function () {
                       tooltip.transition()
-                             .duration(200)
-                             .style("opacity", 0);
+                             .duration(500)
+                             .style("opacity", 0)
+                             .style("display", 'none');
                   });
 }
 
