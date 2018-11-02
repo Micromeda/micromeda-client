@@ -51,3 +51,15 @@
 .legend-row {
     pointer-events: none;
 }
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    padding: 2px;
+    font: 12px sans-serif;
+    background: black;
+    color: white;
+    border: 0;
+    border-radius: 5px;
+    display: none;
+}
