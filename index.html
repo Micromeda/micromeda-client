@@ -6,7 +6,10 @@
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css"
+          integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous"/>
 
+    <link rel="stylesheet" href="css/select2-bootstrap4.min.css"/>
     <link href="css/style.css" rel="stylesheet"/>
 </head>
 <body>
@@ -20,10 +23,14 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                    <button class="btn btn-outline-success reset" type="button">Reset</button>
+                </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                <select class="property_selection" name="properties" title="Property Search">
+                    <option></option>
+                </select>
             </form>
         </div>
     </nav>
@@ -49,11 +56,15 @@
 
 <script src="https://code.jquery.com/jquery-3.3.1.js"
         integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-scrollTo/2.1.2/jquery.scrollTo.min.js"
+        integrity="sha256-7QS1cHsH75h3IFgrFKsdhmKHHpWqF82sb/9vNLqcqs0=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.js"
         integrity="sha256-gfQwA6PlkZsLqWu4bU4hXPrbTqzixm0B5MdvBLI+Oas=" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"
+        integrity="sha256-FcVIknBiVRk5KLQeIBb9VQdtFRMqwffXyZ+D8q0gQro=" crossorigin="anonymous"></script>
 
 <!-- Custom JS for Genome_Properties_Tree object the visualization. -->
 <script type="text/javascript" src="./js/genome_properties_tree.js"></script>
@@ -61,13 +72,30 @@
 <!-- Custom JS for drawing the visualization. -->
 <script type="text/javascript" src="./js/draw_diagram.js"></script>
 
-
 <!-- Custom JS for creating the visualization. -->
 <script type="text/javascript">
     $.getJSON("data/gp_assignments.json", function (genome_properties_data) {
         $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
             let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
+            genome_properties_tree.reset();
             draw_diagram(genome_properties_tree, diagram_parameters);
+
+            $(document).ready(function () {
+                $('.property_selection').select2(
+                    {
+                        placeholder: 'Search for properties',
+                        theme: "bootstrap4",
+                        data: genome_properties_tree.select_data
+                    });
+            });
+
+            $('.property_selection').on('select2:select', function (event) {
+                let data = event.params.data;
+                let genome_property_id = data.id.split('-')[1];
+                draw_diagram_expanded_to_property(genome_properties_tree, diagram_parameters, genome_property_id)
+            });
+
+            $('.reset').on('click', function () {draw_diagram_reset(genome_properties_tree, diagram_parameters)})
         });
     });
 </script>
