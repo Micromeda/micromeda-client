@@ -507,6 +507,20 @@ function delete_existing_diagram()
  */
 function scroll_diagram_to_tree_node(tree_node_id)
 {
-    let top_offset = (-1 * $('.diagram_header').height());
-    $('body').scrollTo(('#' + tree_node_id), 1000, {offset: {top: top_offset, left: 0}});
+    let scroll_point = get_element_top_offset(String(tree_node_id)) - $('.diagram_header').height();
+    $([document.documentElement, document.body]).animate({scrollTop: scroll_point}, 1000);
+}
+
+/**
+ * Find the offset from the top of a html element to the top of a page.
+ *
+ * @param {string} element_id: The id of the html element to find a top of.
+ * @return {number} The top offset.
+ */
+function get_element_top_offset(element_id)
+{
+    let html_element = document.getElementById(element_id);
+    let body_rectangle = document.body.getBoundingClientRect();
+    let element_rectangle = html_element.getBoundingClientRect();
+    return element_rectangle.top - body_rectangle.top;
 }
