@@ -92,10 +92,10 @@
             $('.property_selection').on('select2:select', function (event) {
                 let data = event.params.data;
                 let genome_property_id = data.id.split('-')[1];
-                draw_diagram_expand_to_genome_property(genome_properties_tree, diagram_parameters, genome_property_id)
+                draw_diagram_expanded_to_property(genome_properties_tree, diagram_parameters, genome_property_id)
             });
 
-            $('.reset').on('click', function () {draw_reset_diagram(genome_properties_tree, diagram_parameters)})
+            $('.reset').on('click', function () {draw_diagram_reset(genome_properties_tree, diagram_parameters)})
         });
     });
 </script>

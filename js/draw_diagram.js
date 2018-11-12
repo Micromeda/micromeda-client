@@ -298,7 +298,7 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                   .on("click", function (clicked_tree_node) {
                       if ($.inArray(clicked_tree_node.node_id, real_leaf_ids) < 0)
                       {
-                          draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters);
+                          draw_diagram_updated(genome_properties_tree, diagram_parameters, clicked_tree_node);
                       }
                   });
 
@@ -442,47 +442,71 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
 /**
  * Once a node in the tree is clicked. Change the state of the tree nodes children on or off and redraw the diagram.
  *
+ * @param {object} genome_properties_tree: A genome properties tree object from the server.
+ * @param {object} diagram_parameters: The global parameters for the diagram from the server.
  * @param {object} clicked_tree_node: The tree node that was clicked.
+ */
+function draw_diagram_updated(genome_properties_tree, diagram_parameters, clicked_tree_node)
+{
+    d3.event.stopPropagation();
+    let leaf_node_id = clicked_tree_node.node_id;
+    genome_properties_tree.switch_node_enabled_state(leaf_node_id);
+
+    delete_existing_diagram();
+    draw_diagram(genome_properties_tree, diagram_parameters);
+    scroll_diagram_to_tree_node(leaf_node_id);
+}
+
+/**
+ * Draws a version of genome properties diagram which displays just the top level properties.
+ *
  * @param {object} genome_properties_tree: A genome properties tree object from the server.
  * @param {object} diagram_parameters: The global parameters for the diagram from the server.
  */
-function draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram_parameters)
-{
-    d3.event.stopPropagation();
-
-    let leaf_node_id = clicked_tree_node.node_id;
-    genome_properties_tree.switch_node_enabled_state(leaf_node_id);
-    $('.vis_row').remove();
-    $('.tooltip').remove();
-    draw_diagram(genome_properties_tree, diagram_parameters);
-    scroll_to_node(leaf_node_id);
-}
-
-function draw_reset_diagram(genome_properties_tree, diagram_parameters)
+function draw_diagram_reset(genome_properties_tree, diagram_parameters)
 {
     genome_properties_tree.reset();
     let root_node_id = genome_properties_tree.root.node_id;
-    $('.vis_row').remove();
-    $('.tooltip').remove();
+
+    delete_existing_diagram();
     draw_diagram(genome_properties_tree, diagram_parameters);
-    scroll_to_node(root_node_id);
+    scroll_diagram_to_tree_node(root_node_id);
 }
 
-function draw_diagram_expand_to_genome_property(genome_properties_tree, diagram_parameters, genome_property_id)
+/**
+ * Draws diagram expanded to a specific genome property in the genome properties tree.
+ *
+ * @param {object} genome_properties_tree: A genome properties tree object from the server.
+ * @param {object} diagram_parameters: The global parameters for the diagram from the server.
+ * @param {string} genome_property_id: The genome property id (e.g. GenProp0178) of the
+ */
+function draw_diagram_expanded_to_property(genome_properties_tree, diagram_parameters, genome_property_id)
 {
     genome_properties_tree.reset();
-    let genome_property_index = genome_properties_tree.genome_property_id_to_node_id_index;
-    let first_node_id = genome_property_index[genome_property_id][0];
+    let first_node_id = genome_properties_tree.genome_property_id_to_node_id_index[genome_property_id][0];
     genome_properties_tree.create_path_to_node(first_node_id);
 
-    $('.vis_row').remove();
-    $('.tooltip').remove();
+    delete_existing_diagram();
     draw_diagram(genome_properties_tree, diagram_parameters);
-    scroll_to_node(first_node_id);
+    scroll_diagram_to_tree_node(first_node_id);
 }
 
-function scroll_to_node(node_id)
+/**
+ * Deletes the existing diagram so we can draw a new one.
+ */
+function delete_existing_diagram()
 {
-    let header_height = $('.diagram_header').height();
-    $('body').scrollTo(('#' + node_id), 1000, {offset: {top: (-1 * header_height), left: 0}});
+    $('.vis_row').remove();
+    $('.tooltip').remove();
+}
+
+/**
+ * Scrolls the page to line up with a given node in the diagram.
+ *
+ * @param {number} tree_node_id: The node identifier of the node to scroll to.
+ */
+function scroll_diagram_to_tree_node(tree_node_id)
+{
+    let top_offset = (-1 * $('.diagram_header').height());
+    $('body').scrollTo(('#' + tree_node_id), 1000, {offset: {top: top_offset, left: 0}});
 }
