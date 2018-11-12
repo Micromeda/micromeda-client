@@ -33,6 +33,9 @@ function Genome_Properties_Tree(genome_properties_json)
     this.switch_node_enabled_state = function (node_id) {
         invert_enabled_state(this.node_index, node_id);
     };
+    this.reset = function () {
+        reset_tree(this.tree);
+    };
 
     /**
      * Creates a object which points to every node in the genome properties tree. The each node is keyed by node id.
@@ -304,5 +307,17 @@ function Genome_Properties_Tree(genome_properties_json)
         }
 
         return pruned_genome_properties_tree
+    }
+    function reset_tree(root_genome_properties_node)
+    {
+        let all_nodes = get_nodes(root_genome_properties_node);
+
+        for (let node in all_nodes)
+        {
+            let current_property = all_nodes[node];
+            current_property.enabled = false
+        }
+
+        root_genome_properties_node.enabled = true
     }
 }

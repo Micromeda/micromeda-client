@@ -456,6 +456,18 @@ function draw_updated_diagram(clicked_tree_node, genome_properties_tree, diagram
     $('.tooltip').remove();
     draw_diagram(genome_properties_tree, diagram_parameters);
     scroll_to_node(leaf_node_id);
+}
+
+function draw_reset_diagram(genome_properties_tree, diagram_parameters)
+{
+    genome_properties_tree.reset();
+    let root_node_id = genome_properties_tree.root.node_id;
+    $('.vis_row').remove();
+    $('.tooltip').remove();
+    draw_diagram(genome_properties_tree, diagram_parameters);
+    scroll_to_node(root_node_id);
+}
+
 function scroll_to_node(node_id)
 {
     let header_height = $('.diagram_header').height();

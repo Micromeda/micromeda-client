@@ -20,6 +20,9 @@
 
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                <li class="nav-item">
+                    <button class="btn btn-outline-success reset" type="button">Reset</button>
+                </li>
             </ul>
             <form class="form-inline my-2 my-lg-0">
                 <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
@@ -69,7 +72,10 @@
     $.getJSON("data/gp_assignments.json", function (genome_properties_data) {
         $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
             let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
+            genome_properties_tree.reset();
             draw_diagram(genome_properties_tree, diagram_parameters);
+
+            $('.reset').on('click', function () {draw_reset_diagram(genome_properties_tree, diagram_parameters)})
         });
     });
 </script>
