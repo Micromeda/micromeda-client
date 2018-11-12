@@ -15,26 +15,44 @@ function Genome_Properties_Tree(genome_properties_json)
     this.sample_names = genome_properties_json['sample_names'];
     this.tree = genome_properties_json['property_tree'];
     this.node_index = create_node_index(this.tree);
+    this.genome_property_id_to_node_id_index = generate_genome_property_id_index(this.tree);
+    this.select_data = generate_select_data(this.tree);
+    this.root = this.tree;
     add_child_to_parent_links(this.tree);
 
-    this.nodes = function () {return get_nodes(this.tree);};
-    this.leafs = function (virtual=true) {
-        if (virtual) {
+    this.nodes = function () {
+        return get_nodes(this.tree);
+    };
+    this.leafs = function (virtual = true) {
+        if (virtual)
+        {
             return get_virtual_leaf_nodes(this.tree);
         }
-        else {
+        else
+        {
             return get_real_leaf_nodes(this.tree)
         }
     };
-    this.leaf_data = function () {return get_heatmap_data(this.tree, this.sample_names);};
-    this.number_of_leaves = function () {return get_number_of_virtual_leaf_nodes(this.tree);};
-    this.max_nodes_to_leaf = function () {return get_max_tree_depth(this.tree);};
-    this.pruned_tree = function () {return generate_pruned_tree(this.tree);};
+    this.leaf_data = function () {
+        return get_heatmap_data(this.tree, this.sample_names);
+    };
+    this.number_of_leaves = function () {
+        return get_number_of_virtual_leaf_nodes(this.tree);
+    };
+    this.max_nodes_to_leaf = function () {
+        return get_max_tree_depth(this.tree);
+    };
+    this.pruned_tree = function () {
+        return generate_pruned_tree(this.tree);
+    };
     this.switch_node_enabled_state = function (node_id) {
         invert_enabled_state(this.node_index, node_id);
     };
     this.reset = function () {
         reset_tree(this.tree);
+    };
+    this.create_path_to_node = function (node_id) {
+        create_path_to_node(this.node_index, node_id)
     };
 
     /**
@@ -301,13 +319,95 @@ function Genome_Properties_Tree(genome_properties_json)
 
         let leafs = get_virtual_leaf_nodes(pruned_genome_properties_tree);
 
-        for (let leaf_index in leafs) {
+        for (let leaf_index in leafs)
+        {
             let leaf_property = leafs[leaf_index];
             leaf_property.children = []
         }
 
         return pruned_genome_properties_tree
     }
+
+    function generate_select_data(root_genome_properties_node)
+    {
+        let all_nodes = get_nodes(root_genome_properties_node);
+
+        let property_id_options = [];
+        let property_name_options = [];
+
+        for (let node in all_nodes)
+        {
+            let current_property = all_nodes[node];
+            let id = current_property.property_id;
+
+            if (id != null)
+            {
+                let name = current_property.name;
+                let id_option = {"id": ('id-' + id), "text": id};
+                let name_option = {"id": ('name-'+ id), "text": name};
+
+                property_id_options.push(id_option);
+                property_name_options.push(name_option);
+            }
+        }
+
+        let property_id_options_deduped = deduplicate(property_id_options, 'id');
+        let property_name_options_deduped = deduplicate(property_name_options, 'id');
+
+        return [
+            {
+                "text": "Property Names",
+                "children": property_name_options_deduped
+            },
+            {
+                "text": "Property IDs",
+                "children": property_id_options_deduped
+            }
+        ]
+    }
+
+    function deduplicate(array, property)
+    {
+        const arrayOfKeyValues = array.map(item => {
+            let key = item; // Default the key to the item itself
+            if ((property in item))
+            {
+                key = item[property]; // If the property exists, compare using that
+            }
+            return [key, item];
+        });
+        const mapOfValues = new Map(arrayOfKeyValues); // Add each array item to Map
+        const uniqueItems = mapOfValues.values(); // Get iterable of values
+        return Array.from(uniqueItems);
+    }
+
+    function generate_genome_property_id_index(root_genome_properties_node) {
+        let all_nodes = get_nodes(root_genome_properties_node);
+
+        let genprop_id_index = {};
+
+        for (let node in all_nodes)
+        {
+            let current_property = all_nodes[node];
+            let property_id = current_property.property_id;
+            let node_id = current_property.node_id;
+
+            if (property_id != null)
+            {
+                let current_property_data = [];
+
+                if (genprop_id_index.hasOwnProperty(property_id)){
+                    current_property_data = genprop_id_index[property_id]
+                }
+
+                current_property_data.push(node_id);
+                genprop_id_index[property_id] = current_property_data
+            }
+        }
+
+        return genprop_id_index
+    }
+
     function reset_tree(root_genome_properties_node)
     {
         let all_nodes = get_nodes(root_genome_properties_node);
@@ -319,5 +419,22 @@ function Genome_Properties_Tree(genome_properties_json)
         }
 
         root_genome_properties_node.enabled = true
+    }
+
+    function create_path_to_node(node_index, node_id)
+    {
+        let current_genome_property = node_index[node_id];
+        current_genome_property.enabled = true;
+        enable_parents(current_genome_property)
+    }
+
+    function enable_parents(current_node)
+    {
+        let parent_node = current_node.parent;
+
+        if (parent_node != null) {
+            parent_node.enabled = true;
+            enable_parents(parent_node)
+        }
     }
 }

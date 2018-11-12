@@ -468,6 +468,19 @@ function draw_reset_diagram(genome_properties_tree, diagram_parameters)
     scroll_to_node(root_node_id);
 }
 
+function draw_diagram_expand_to_genome_property(genome_properties_tree, diagram_parameters, genome_property_id)
+{
+    genome_properties_tree.reset();
+    let genome_property_index = genome_properties_tree.genome_property_id_to_node_id_index;
+    let first_node_id = genome_property_index[genome_property_id][0];
+    genome_properties_tree.create_path_to_node(first_node_id);
+
+    $('.vis_row').remove();
+    $('.tooltip').remove();
+    draw_diagram(genome_properties_tree, diagram_parameters);
+    scroll_to_node(first_node_id);
+}
+
 function scroll_to_node(node_id)
 {
     let header_height = $('.diagram_header').height();
