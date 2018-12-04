@@ -437,6 +437,8 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap, diagram_header,
                  heatmap_left_offset);
     draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree, tooltip);
+
+    update_genome_properties_info(genome_properties_tree.visible_properties());
 }
 
 /**
