@@ -48,7 +48,7 @@ function update_genome_properties_info(genome_property_ids)
             {
                 let data_url = back_end_url + 'genome_properties/' + current_id;
                 jQuery.getJSON(data_url, function (remote_genome_properties_data) {
-                    localforage.setItem(current_id, json.stringify(remote_genome_properties_data)).then(function () {
+                    localforage.setItem(current_id, remote_genome_properties_data).then(function () {
 
                     }).catch(function (err) {
                         console.log(err);
