@@ -63,6 +63,8 @@
         crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.full.min.js"
         integrity="sha256-FcVIknBiVRk5KLQeIBb9VQdtFRMqwffXyZ+D8q0gQro=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.7.3/localforage.min.js"
+        integrity="sha256-H/ZsHjKSJUnQyCQHZwPmn7VTWFeTTI+qgCP1GkiB9zI=" crossorigin="anonymous"></script>
 
 <!-- Custom JS for Genome_Properties_Tree object the visualization. -->
 <script type="text/javascript" src="./js/genome_properties_tree.js"></script>
@@ -71,32 +73,6 @@
 <script type="text/javascript" src="./js/draw_diagram.js"></script>
 
 <!-- Custom JS for creating the visualization. -->
-<script type="text/javascript">
-    $.getJSON("data/gp_assignments.json", function (genome_properties_data) {
-        $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
-            let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
-            genome_properties_tree.reset();
-            draw_diagram(genome_properties_tree, diagram_parameters);
-
-            $(document).ready(function () {
-                $('.property_selection').select2(
-                    {
-                        placeholder: 'Search for properties',
-                        theme: "bootstrap4",
-                        data: genome_properties_tree.select_data
-                    });
-            });
-
-            $('.property_selection').on('select2:select', function (event) {
-                event.preventDefault();
-                let data = event.params.data;
-                let genome_property_id = data.id.split('-')[1];
-                draw_diagram_expanded_to_property(genome_properties_tree, diagram_parameters, genome_property_id)
-            });
-
-            $('.reset').on('click', function () {draw_diagram_reset(genome_properties_tree, diagram_parameters)})
-        });
-    });
-</script>
+<script type="text/javascript" src="js/micromeda.js"></script>
 </body>
 </html>

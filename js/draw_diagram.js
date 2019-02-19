@@ -79,6 +79,8 @@ function calculate_diagram_height(genome_properties_tree, global_parameters)
  * @param {object} global_parameters: Settings from the server.
  * @param {object} heatmap_parameters: Heatmap settings from the server.
  * @param {g} heatmap_svg_group: The SVG group to which contain the heatmap portion of the visualisation.
+ * @param diagram_header_svg TODO
+ * @param heatmap_left_offset TODO
  */
 function draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap_svg_group, diagram_header_svg, heatmap_left_offset)
 {
@@ -195,18 +197,81 @@ function deduplicated_y_elements(heatmap_data, x_elements)
  * Takes the clicked tree node and creates a new tab with information on
  * the EBI website about the genome property for which the node represents.
  *
- * @param hovered_tree_node: The tree node that was hovered.
+ * @param {Object} tooltip: A D3 wrapped html element.
+ * @param {Object} hovered_tree_node: A an object representing a hovered tree node.
  */
-function generate_tooltip_html_content(hovered_tree_node)
+function generate_tooltip_html_content(tooltip, hovered_tree_node)
 {
-    let header = "<h6>" + hovered_tree_node.property_id + "</h6>";
-    let name = "<p>" + hovered_tree_node.name + "</p>";
-    let desc = "<p>" + "This is a mock property description it can be long." + "</p>";
-    let out_links = '<p>Links</p>';
-    let ebi_url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + hovered_tree_node.property_id;
-    let ebi_link = '<a target="_blank" rel="noopener noreferrer" href="' + ebi_url + '">EBI</a>';
+    let genome_property_id = hovered_tree_node.property_id;
 
-    return header + name + desc + out_links + ebi_link
+    localforage.getItem(genome_property_id).then(function (local_genome_properties_data) {
+        if (local_genome_properties_data !== null)
+        {
+            default_tool_tip_html_callback(tooltip, genome_property_id, local_genome_properties_data);
+        }
+        else
+        {
+            default_tool_tip_html_callback(tooltip, genome_property_id, hovered_tree_node);
+        }
+    });
+
+    function generate_out_link(database_url, link_name)
+    {
+        return '<p><a target="_blank" rel="noopener noreferrer" href="' + database_url + '">' + link_name + '</a></p>';
+    }
+
+    function default_tool_tip_html_callback(tooltip, property_id, property_data)
+    {
+        let header = "<h6>" + property_id + "</h6>";
+        let name = "<p>" + property_data.name + "</p>";
+
+        let desc = "<p>" + "This is a mock property description it can be long." + "</p>";
+        if (property_data.hasOwnProperty('description')) {
+            desc = "<p>" + property_data.description + "</p>";
+        }
+
+        let out_links = '<p>Links</p>';
+        let ebi_url = "https://www.ebi.ac.uk/interpro/genomeproperties/#" + property_id;
+        let ebi_link = generate_out_link(ebi_url, 'EBI Genome Properties');
+
+        let individual_database_links = [];
+        if (property_data.hasOwnProperty('databases')) {
+            let databases = property_data.databases;
+            if (!$.isEmptyObject(databases)) {
+                if (databases.hasOwnProperty('KEGG')) {
+                    let kegg_ids = databases['KEGG'];
+                    for (let index in kegg_ids){
+                        let current_kegg_id = kegg_ids[index];
+                        let kegg_url_one = 'https://www.genome.jp/dbget-bin/www_bget?' + current_kegg_id;
+                        let kegg_url_two = 'https://www.genome.jp/kegg-bin/show_pathway?' + current_kegg_id;
+                        individual_database_links.push(generate_out_link(kegg_url_one, 'KEGG Pathway'));
+                        individual_database_links.push(generate_out_link(kegg_url_two, 'KEGG Map'));
+                    }
+                }
+
+                if (databases.hasOwnProperty('MetaCyc')) {
+                    let metacyc_ids = databases['MetaCyc'];
+                    for (let index in metacyc_ids){
+                        let current_metacyc_id = metacyc_ids[index];
+                        let metacyc_url = 'https://biocyc.org/META/new-image?object=' + current_metacyc_id;
+                        individual_database_links.push(generate_out_link(metacyc_url, 'MetaCyc Pathway'));
+                    }
+                }
+            }
+        }
+
+        let combined_database_links = individual_database_links.join('');
+
+        /*
+        KEGG Pathway https://www.genome.jp/dbget-bin/www_bget?map00400
+        KEGG MAP https://www.genome.jp/kegg-bin/show_pathway?map00400
+        MetaCyc Pathway https://biocyc.org/META/new-image?object=ARO-PWY
+        */
+
+        let html_content = header + name + desc + out_links + ebi_link + combined_database_links;
+
+        tooltip.html(html_content)
+    }
 }
 
 /**
@@ -348,11 +413,10 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                              .style("width", tooltip_width + "px")
                              .style("display", 'block');
 
-                      let html = generate_tooltip_html_content(hovered_tree_node);
-
-                      tooltip.html(html)
-                             .style("left", (d3.event.pageX - (tooltip_width / 2)) + "px")
+                      tooltip.style("left", (d3.event.pageX - (tooltip_width / 2)) + "px")
                              .style("top", (d3.event.pageY) + "px");
+
+                      generate_tooltip_html_content(tooltip, hovered_tree_node);
 
                       tooltip
                           .on("mouseover", function () {
@@ -437,6 +501,8 @@ function draw_diagram(genome_properties_tree, diagram_parameters)
     draw_heatmap(genome_properties_tree, global_parameters, heatmap_parameters, heatmap, diagram_header,
                  heatmap_left_offset);
     draw_tree(genome_properties_tree, diagram_parameters, global_parameters, tree_parameters, tree, tooltip);
+
+    update_genome_properties_info(genome_properties_tree.visible_properties());
 }
 
 /**
