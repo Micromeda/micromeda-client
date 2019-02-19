@@ -47,6 +47,9 @@ function Genome_Properties_Tree(genome_properties_json)
     this.create_path_to_node = function (node_id) {
         create_path_to_node(this.node_index, node_id)
     };
+    this.visible_properties = function () {
+        return get_visible_properties(this.leafs())
+    };
 
     /**
      * Creates a object which points to every node in the genome properties tree. The each node is keyed by node id.
@@ -70,6 +73,37 @@ function Genome_Properties_Tree(genome_properties_json)
         }
 
         return node_index
+    }
+
+    function get_visible_properties(leaf_nodes)
+    {
+        let visible_properties = [];
+
+        for (let node_index in leaf_nodes)
+        {
+            let current_node = leaf_nodes[node_index];
+
+            if (current_node.property_id !== undefined){
+                visible_properties.push(current_node.property_id);
+            }
+            let parent_genome_properties_ids = get_parents_genome_property_ids(current_node);
+            visible_properties = visible_properties.concat(parent_genome_properties_ids)
+        }
+
+        return [...new Set(visible_properties)]
+    }
+
+    function get_parents_genome_property_ids(current_node)
+    {
+        let parent_genome_properties_ids = [];
+        let node_parent = current_node.parent;
+
+        if (node_parent){
+            parent_genome_properties_ids.push(node_parent.property_id);
+            parent_genome_properties_ids = parent_genome_properties_ids.concat(get_parents_genome_property_ids(node_parent));
+        }
+
+        return parent_genome_properties_ids
     }
 
     /**
