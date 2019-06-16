@@ -193,6 +193,15 @@ function deduplicated_y_elements(heatmap_data, x_elements)
     });
 }
 
+function generate_download_tooltip_html_content(tooltip, hovered_tree_node) {
+    let step_number = hovered_tree_node.step_id;
+    let genome_property_id = hovered_tree_node.parent.property_id;
+
+    let download_link = '<p><a target="_blank" rel="noopener noreferrer" href="' + back_end_url + 'fasta/' + genome_property_id + '/' + step_number +'">' + 'FASTA' + '</a></p>';
+    tooltip.html(download_link)
+}
+
+
 /**
  * Takes the clicked tree node and creates a new tab with information on
  * the EBI website about the genome property for which the node represents.
@@ -200,7 +209,7 @@ function deduplicated_y_elements(heatmap_data, x_elements)
  * @param {Object} tooltip: A D3 wrapped html element.
  * @param {Object} hovered_tree_node: A an object representing a hovered tree node.
  */
-function generate_tooltip_html_content(tooltip, hovered_tree_node)
+function generate_property_tooltip_html_content(tooltip, hovered_tree_node)
 {
     let genome_property_id = hovered_tree_node.property_id;
 
@@ -416,7 +425,62 @@ function draw_tree(genome_properties_tree, diagram_parameters, global_parameters
                       tooltip.style("left", (d3.event.pageX - (tooltip_width / 2)) + "px")
                              .style("top", (d3.event.pageY) + "px");
 
-                      generate_tooltip_html_content(tooltip, hovered_tree_node);
+                      generate_property_tooltip_html_content(tooltip, hovered_tree_node);
+
+                      tooltip
+                          .on("mouseover", function () {
+                              tooltip.transition()
+                                     .duration(0)
+                                     .style("opacity", .9)
+                                     .style("display", 'block');
+                          })
+                          .on("mouseout", function () {
+                              tooltip.transition()
+                                     .duration(500)
+                                     .style("opacity", 0)
+                                     .style("display", 'none');
+                          })
+                  })
+                  .on("mouseout", function () {
+                      tooltip.transition()
+                             .duration(500)
+                             .style("opacity", 0)
+                             .style("display", 'none');
+                  });
+
+    /* Create tree fasta download boxes. */
+    tree_svg_group.selectAll(".download")
+                  .data(nodes.filter(function (leaf_tree_node) {
+                      return !should_node_be_filtered(leaf_tree_node, real_leaf_ids);
+                  }))
+                  .enter().append("image")
+                  .attr("class", "download")
+                  .attr("xlink:href", "assets/download.svg")
+                  .attr("x", function (leaf_tree_node) {
+                      return leaf_tree_node.y + tree_parameters['column_spacer'];
+                  })
+                  .attr("y", function (leaf_tree_node) {
+                      return leaf_tree_node.x + leaf_tree_node.dx - tree_parameters['link_out_height'];
+                  })
+                  .attr("width", function () {
+                      return tree_parameters['cell_width'];
+                  })
+                  .attr("height", function () {
+                      return (tree_parameters['link_out_height'] - global_parameters['row_spacer']);
+                  })
+                  .on("mouseover", function (hovered_tree_node) {
+                      let tooltip_width = 120;
+
+                      tooltip.transition()
+                             .duration(500)
+                             .style("opacity", .9)
+                             .style("width", tooltip_width + "px")
+                             .style("display", 'block');
+
+                      tooltip.style("left", (d3.event.pageX - (tooltip_width / 2)) + "px")
+                             .style("top", (d3.event.pageY) + "px");
+
+                      generate_download_tooltip_html_content(tooltip, hovered_tree_node);
 
                       tooltip
                           .on("mouseover", function () {

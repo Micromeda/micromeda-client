@@ -5,7 +5,13 @@
 
 const back_end_url = 'http://0.0.0.0:5000/';
 
-$.getJSON("data/gp_assignments.json", function (genome_properties_data) {
+$.ajaxSetup({
+                xhrFields: {
+                    withCredentials: true
+                }
+            });
+
+$.getJSON(back_end_url + "genome_properties_tree", function (genome_properties_data) {
     $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
         let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
         genome_properties_tree.reset();
