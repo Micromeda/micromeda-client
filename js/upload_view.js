@@ -3,7 +3,14 @@
  * Description: code that implements upload view page functionality
  */
 
+$(document).ready(function () {
+    Dropzone.autoDiscover = false;
+    localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
+    create_dropzone();
+});
+
 const back_end_url = 'http://0.0.0.0:5000/';
+
 
 // Creates dropzone
 function create_dropzone() {
@@ -35,7 +42,7 @@ function create_dropzone() {
 
                 $(file_data.progress_bar).css('width', formatted_progress + '%').attr('aria-valuenow', formatted_progress).text(formatted_progress + '%');
             },
-            success: function (file_data) {
+            success: function (file_data, response) {
                 $(file_data.progress_bar).removeClass('progress-bar-info').addClass('progress-bar-success').removeClass('active').css('width', '100%').attr('aria-valuenow', 100).text('100%');
 
                 // Skip redirection if files are still uploading
@@ -47,7 +54,14 @@ function create_dropzone() {
 
                 // Redirect once all files have been uploaded
                 setTimeout(function(){
-                    window.location.assign('../index.html');
+                    let result_key = response.result_key;
+
+                    localforage.setItem('micromeda-result-key', result_key).then(function () {
+                        window.location.assign('../index.html');
+                    }).catch(function (err) {
+                        console.log(err);
+                        window.location.assign('../index.html');
+                    });
                 }, 1000);
             },
             error: function (file_data, response) {
@@ -73,7 +87,4 @@ function create_dropzone() {
         });
 }
 
-$(document).ready(function () {
-    Dropzone.autoDiscover = false;
-    create_dropzone();
-});
+
