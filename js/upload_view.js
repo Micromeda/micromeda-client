@@ -3,14 +3,16 @@
  * Description: code that implements upload view page functionality
  */
 
+Dropzone.autoDiscover = false;
+let back_end_url = "";
+
 $(document).ready(function () {
-    Dropzone.autoDiscover = false;
-    localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
-    create_dropzone();
+    $.getJSON('../configs/application_configuration.json', function (config) {
+        back_end_url = config['back_end_url'];
+        localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
+        create_dropzone();
+    });
 });
-
-const back_end_url = 'http://0.0.0.0:5000/';
-
 
 // Creates dropzone
 function create_dropzone() {

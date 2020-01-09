@@ -3,27 +3,31 @@
  * Description: Functions for drawing the genome properties diagram.
  */
 
-const back_end_url = 'http://0.0.0.0:5000/';
+let back_end_url = "";
 
 $(document).ready(function () {
-    $.ajaxSetup({
-                    xhrFields: {
-                        withCredentials: true
-                    }
-                });
+    $.getJSON('./configs/application_configuration.json', function (config) {
+        back_end_url = config['back_end_url'];
 
-    localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
+        $.ajaxSetup({
+                        xhrFields: {
+                            withCredentials: true
+                        }
+                    });
 
-    localforage.getItem('micromeda-result-key').then(function (result_key) {
-        if (result_key === null)
-        {
-            get_diagram_data(back_end_url + "genome_properties_tree")
-        }
-        else {
-            get_diagram_data(back_end_url + "genome_properties_tree" + '?result_key=' + result_key)
-        }
-    }).catch(function (err) {
-        console.log(err);
+        localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
+
+        localforage.getItem('micromeda-result-key').then(function (result_key) {
+            if (result_key === null)
+            {
+                get_diagram_data(back_end_url + "genome_properties_tree")
+            }
+            else {
+                get_diagram_data(back_end_url + "genome_properties_tree" + '?result_key=' + result_key)
+            }
+        }).catch(function (err) {
+            console.log(err);
+        });
     });
 });
 
