@@ -22,7 +22,8 @@ $(document).ready(function () {
             {
                 get_diagram_data(back_end_url + "genome_properties_tree")
             }
-            else {
+            else
+            {
                 get_diagram_data(back_end_url + "genome_properties_tree" + '?result_key=' + result_key)
             }
         }).catch(function (err) {

@@ -6,7 +6,6 @@ COPY ./css /usr/share/nginx/html/css
 COPY ./data /usr/share/nginx/html/data
 COPY ./html /usr/share/nginx/html/html
 COPY ./js /usr/share/nginx/html/js
-COPY ./js /usr/share/nginx/html/js
 
 # Copy the EntryPoint
 COPY ./entryPoint.sh /
