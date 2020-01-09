@@ -5,42 +5,61 @@
 
 const back_end_url = 'http://0.0.0.0:5000/';
 
-$.ajaxSetup({
-                xhrFields: {
-                    withCredentials: true
-                }
-            });
-
-$.getJSON(back_end_url + "genome_properties_tree", function (genome_properties_data) {
-    $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
-        let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
-        genome_properties_tree.reset();
-
-        draw_diagram(genome_properties_tree, diagram_parameters);
-
-        update_genome_properties_info(genome_properties_tree.visible_properties());
-
-        $(document).ready(function () {
-            $('.property_selection').select2(
-                {
-                    placeholder: 'Search for properties',
-                    theme: "bootstrap4",
-                    data: genome_properties_tree.select_data
+$(document).ready(function () {
+    $.ajaxSetup({
+                    xhrFields: {
+                        withCredentials: true
+                    }
                 });
-        });
 
-        $('.property_selection').on('select2:select', function (event) {
-            event.preventDefault();
-            let data = event.params.data;
-            let genome_property_id = data.id.split('-')[1];
-            draw_diagram_expanded_to_property(genome_properties_tree, diagram_parameters, genome_property_id)
-        });
+    localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
 
-        $('.reset').on('click', function () {
-            draw_diagram_reset(genome_properties_tree, diagram_parameters)
-        })
+    localforage.getItem('micromeda-result-key').then(function (result_key) {
+        if (result_key === null)
+        {
+            get_diagram_data(back_end_url + "genome_properties_tree")
+        }
+        else {
+            get_diagram_data(back_end_url + "genome_properties_tree" + '?result_key=' + result_key)
+        }
+    }).catch(function (err) {
+        console.log(err);
     });
 });
+
+function get_diagram_data(backend_tree_url)
+{
+    $.getJSON(backend_tree_url, function (genome_properties_data) {
+        $.getJSON("configs/diagram_configuration.json", function (diagram_parameters) {
+            let genome_properties_tree = new Genome_Properties_Tree(genome_properties_data);
+            genome_properties_tree.reset();
+
+            draw_diagram(genome_properties_tree, diagram_parameters);
+
+            update_genome_properties_info(genome_properties_tree.visible_properties());
+
+            $(document).ready(function () {
+                $('.property_selection').select2(
+                    {
+                        placeholder: 'Search for properties',
+                        theme: "bootstrap4",
+                        data: genome_properties_tree.select_data
+                    });
+            });
+
+            $('.property_selection').on('select2:select', function (event) {
+                event.preventDefault();
+                let data = event.params.data;
+                let genome_property_id = data.id.split('-')[1];
+                draw_diagram_expanded_to_property(genome_properties_tree, diagram_parameters, genome_property_id)
+            });
+
+            $('.reset').on('click', function () {
+                draw_diagram_reset(genome_properties_tree, diagram_parameters)
+            })
+        });
+    });
+}
 
 
 function update_genome_properties_info(genome_property_ids)

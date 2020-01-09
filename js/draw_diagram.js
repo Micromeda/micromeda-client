@@ -197,8 +197,23 @@ function generate_download_tooltip_html_content(tooltip, hovered_tree_node) {
     let step_number = hovered_tree_node.step_id;
     let genome_property_id = hovered_tree_node.parent.property_id;
 
-    let download_link = '<p><a target="_blank" rel="noopener noreferrer" href="' + back_end_url + 'fasta/' + genome_property_id + '/' + step_number +'">' + 'FASTA' + '</a></p>';
-    tooltip.html(download_link)
+    localforage.getItem('micromeda-result-key').then(function (result_key) {
+        if (result_key === null)
+        {
+            let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number;
+            let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'FASTA' + '</a></p>';
+            let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'ALL FASTA' + '</a></p>';
+            tooltip.html(download_link_one + download_link_two)
+        }
+        else {
+            let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number + '?result_key=' + result_key;
+            let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'FASTA' + '</a></p>';
+            let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '&all=true' + '">' + 'ALL FASTA' + '</a></p>';
+            tooltip.html(download_link_one + download_link_two)
+        }
+    }).catch(function (err) {
+        console.log(err);
+    });
 }
 
 
