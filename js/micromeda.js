@@ -9,12 +9,6 @@ $(document).ready(function () {
     $.getJSON('./configs/application_configuration.json', function (config) {
         back_end_url = config['back_end_url'];
 
-        $.ajaxSetup({
-                        xhrFields: {
-                            withCredentials: true
-                        }
-                    });
-
         localforage.config({name: 'micromeda', storeName: 'micromeda_data'});
 
         localforage.getItem('micromeda-result-key').then(function (result_key) {
