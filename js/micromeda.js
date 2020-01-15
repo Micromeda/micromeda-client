@@ -55,7 +55,11 @@ function get_diagram_data(backend_tree_url)
 
             $('.reset').on('click', function () {
                 draw_diagram_reset(genome_properties_tree, diagram_parameters)
-            })
+            });
+
+            $('.expand-all').on('click', function () {
+                draw_diagram_expand_all(genome_properties_tree, diagram_parameters)
+            });
         });
     });
 }

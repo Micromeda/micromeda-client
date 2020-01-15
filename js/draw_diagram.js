@@ -619,6 +619,22 @@ function draw_diagram_reset(genome_properties_tree, diagram_parameters)
 }
 
 /**
+ * Draws a version of genome properties diagram which displays all leaf steps.
+ *
+ * @param {object} genome_properties_tree: A genome properties tree object from the server.
+ * @param {object} diagram_parameters: The global parameters for the diagram from the server.
+ */
+function draw_diagram_expand_all(genome_properties_tree, diagram_parameters)
+{
+    genome_properties_tree.enable_all();
+    let root_node_id = genome_properties_tree.root.node_id;
+
+    delete_existing_diagram();
+    draw_diagram(genome_properties_tree, diagram_parameters);
+    scroll_diagram_to_tree_node(root_node_id);
+}
+
+/**
  * Draws diagram expanded to a specific genome property in the genome properties tree.
  *
  * @param {object} genome_properties_tree: A genome properties tree object from the server.
