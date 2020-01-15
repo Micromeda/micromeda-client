@@ -51,6 +51,9 @@ function Genome_Properties_Tree(genome_properties_json)
     this.reset = function () {
         reset_tree(this.tree);
     };
+    this.enable_all = function () {
+        enable_all_nodes(this.tree)
+    };
     this.create_path_to_node = function (node_id) {
         create_path_to_node(this.node_index, node_id)
     };
@@ -453,6 +456,24 @@ function Genome_Properties_Tree(genome_properties_json)
         {
             let current_property = all_nodes[node];
             current_property.enabled = false
+        }
+
+        root_genome_properties_node.enabled = true
+    }
+
+    /**
+     * Sets the genome property tree to a stat where all nodes are enabled.
+     *
+     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
+     */
+    function enable_all_nodes(root_genome_properties_node)
+    {
+        let all_nodes = get_nodes(root_genome_properties_node);
+
+        for (let node in all_nodes)
+        {
+            let current_property = all_nodes[node];
+            current_property.enabled = true
         }
 
         root_genome_properties_node.enabled = true
