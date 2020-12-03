@@ -1,4 +1,57 @@
 {
+  "topnavbar": {
+    "top": 20,
+    "width": "100%",
+    "logo_url": "https://imagizer.imageshack.com/img924/2927/rgQ28R.png",
+    "tile_text": "Interactive Micromeda-Viz"
+  },
+  "general_content": {
+    "general_container":
+        {
+            "width": "100%",
+            "top":"0",
+            "bottom":"0",
+            "margin-bottom":"20px",
+            "margin-top":56
+        },
+    "sidebar":
+        {
+            "width": "300px",
+            "min-width":"300px",
+            "height":"auto",
+            "padding":"15px",
+            "padding-bottom":"0",
+            "border-right-width":"thin",
+            "border-right-style":"solid",
+            "border-right-color":"rgb(221,221,221)",
+            "checkboxes":{
+                "check":[true,true,true,false]
+            },
+            "legends":{
+                "color_scale_domain":["YES","PARTIAL","NO"],
+                "color_scale_range":["#6c6c6c","#cecece","white"],
+                "legend_menu_width":"100%",
+                "legend_menu_height":80,
+                "legend_menu_vertical-align":"middle",
+                "legend_square_height":20
+            }
+        },
+    "heatmap":
+        {
+            "Y_link_lenght":80,                               
+            "link_margin":5,
+            "sample_name_height":200,
+            "intro_animation_time": 2000,
+            "nodeSpaceY":20
+        }
+  },
+  "footer": {
+    "top": 20,
+    "bottom":0,
+    "width":"100%",
+    "height":"100px",
+    "footer_text": ""
+  },
   "margins": {
     "left": 20,
     "right": 20,
@@ -6,9 +59,12 @@
     "bottom": 20
   },
   "global": {
-    "top_offset": 280,
+    "top_offset": 230,
     "row_height": 50,
-    "row_spacer": 2
+    "row_spacer": 2,
+    "pathways_genprop": ["GenProp0001",	"GenProp0023",	"GenProp0030",	"GenProp0036",	"GenProp0037",	"GenProp0038",	"GenProp0047",	"GenProp0048",	"GenProp0057",	"GenProp0058",	"GenProp0109",	"GenProp0110",	"GenProp0111",	"GenProp0117",	"GenProp0118",	"GenProp0120",	"GenProp0124",	"GenProp0136",	"GenProp0139",	"GenProp0141",	"GenProp0143",	"GenProp0146",	"GenProp0147",	"GenProp0150",	"GenProp0155",	"GenProp0159",	"GenProp0160",	"GenProp0162",	"GenProp0163",	"GenProp0164",	"GenProp0171",	"GenProp0187",	"GenProp0188",	"GenProp0189",	"GenProp0193",	"GenProp0203",	"GenProp0217",	"GenProp0218",	"GenProp0220",	"GenProp0221",	"GenProp0222",	"GenProp0223",	"GenProp0231",	"GenProp0233",	"GenProp0238",	"GenProp0240",	"GenProp0250",	"GenProp0253",	"GenProp0254",	"GenProp0259",	"GenProp0264",	"GenProp0265",	"GenProp0266",	"GenProp0268",	"GenProp0269",	"GenProp0272",	"GenProp0273",	"GenProp0275",	"GenProp0281",	"GenProp0283",	"GenProp0304",	"GenProp0309",	"GenProp0466",	"GenProp0468",	"GenProp0473",	"GenProp0478",	"GenProp0480",	"GenProp0481",	"GenProp0562",	"GenProp0624",	"GenProp0639",	"GenProp0641",	"GenProp0642",	"GenProp0653",	"GenProp0659",	"GenProp0671",	"GenProp0673",	"GenProp0677",	"GenProp0681",	"GenProp0687",	"GenProp0688",	"GenProp0689",	"GenProp0691",	"GenProp0692",	"GenProp0697",	"GenProp0704",	"GenProp0706",	"GenProp0708",	"GenProp0709",	"GenProp0711",	"GenProp0713",	"GenProp0718",	"GenProp0724",	"GenProp0728",	"GenProp0730",	"GenProp0732",	"GenProp0736",	"GenProp0738",	"GenProp0744",	"GenProp0747",	"GenProp0750",	"GenProp0753",	"GenProp0754",	"GenProp0759",	"GenProp0766",	"GenProp0786",	"GenProp0787",	"GenProp0792",	"GenProp0797",	"GenProp0813",	"GenProp0822",	"GenProp0829",	"GenProp0837",	"GenProp0862",	"GenProp0878",	"GenProp0893",	"GenProp0908",	"GenProp0909",	"GenProp0927",	"GenProp0942",	"GenProp0950",	"GenProp0991",	"GenProp1017",	"GenProp1058",	"GenProp1064",	"GenProp1070",	"GenProp1084",	"GenProp1098",	"GenProp1215",	"GenProp1216",	"GenProp1217",	"GenProp1218",	"GenProp1219",	"GenProp1220",	"GenProp1221",	"GenProp1222",	"GenProp1223",	"GenProp1224",	"GenProp1225",	"GenProp1226",	"GenProp1227",	"GenProp1228",	"GenProp1229",	"GenProp1230",	"GenProp1231",	"GenProp1233",	"GenProp1234",	"GenProp1235",	"GenProp1236",	"GenProp1237",	"GenProp1238",	"GenProp1239",	"GenProp1240",	"GenProp1241",	"GenProp1242",	"GenProp1243",	"GenProp1244",	"GenProp1245",	"GenProp1246",	"GenProp1247",	"GenProp1248",	"GenProp1249",	"GenProp1250",	"GenProp1251",	"GenProp1252",	"GenProp1253",	"GenProp1254",	"GenProp1255",	"GenProp1256",	"GenProp1257",	"GenProp1258",	"GenProp1259",	"GenProp1260",	"GenProp1261",	"GenProp1262",	"GenProp1263",	"GenProp1264",	"GenProp1265",	"GenProp1266",	"GenProp1267",	"GenProp1268",	"GenProp1269",	"GenProp1270",	"GenProp1271",	"GenProp1272",	"GenProp1273",	"GenProp1274",	"GenProp1275",	"GenProp1276",	"GenProp1277",	"GenProp1278",	"GenProp1279",	"GenProp1280",	"GenProp1281",	"GenProp1282",	"GenProp1283",	"GenProp1284",	"GenProp1286",	"GenProp1287",	"GenProp1288",	"GenProp1289",	"GenProp1290",	"GenProp1291",	"GenProp1292",	"GenProp1293",	"GenProp1294",	"GenProp1295",	"GenProp1296",	"GenProp1297",	"GenProp1298",	"GenProp1299",	"GenProp1300",	"GenProp1301",	"GenProp1302",	"GenProp1303",	"GenProp1304",	"GenProp1305",	"GenProp1306",	"GenProp1307",	"GenProp1308",	"GenProp1309",	"GenProp1310",	"GenProp1311",	"GenProp1312",	"GenProp1313",	"GenProp1315",	"GenProp1316",	"GenProp1317",	"GenProp1318",	"GenProp1320",	"GenProp1321",	"GenProp1322",	"GenProp1323",	"GenProp1324",	"GenProp1325",	"GenProp1326",	"GenProp1327",	"GenProp1328",	"GenProp1329",	"GenProp1330",	"GenProp1331",	"GenProp1332",	"GenProp1333",	"GenProp1334",	"GenProp1335",	"GenProp1336",	"GenProp1337",	"GenProp1338",	"GenProp1339",	"GenProp1340",	"GenProp1341",	"GenProp1342",	"GenProp1343",	"GenProp1344",	"GenProp1345",	"GenProp1346",	"GenProp1347",	"GenProp1348",	"GenProp1349",	"GenProp1351",	"GenProp1352",	"GenProp1353",	"GenProp1354",	"GenProp1355",	"GenProp1356",	"GenProp1357",	"GenProp1358",	"GenProp1359",	"GenProp1360",	"GenProp1361",	"GenProp1362",	"GenProp1363",	"GenProp1364",	"GenProp1365",	"GenProp1366",	"GenProp1367",	"GenProp1368",	"GenProp1369",	"GenProp1370",	"GenProp1371",	"GenProp1372",	"GenProp1373",	"GenProp1374",	"GenProp1375",	"GenProp1376",	"GenProp1377",	"GenProp1378",	"GenProp1379",	"GenProp1380",	"GenProp1381",	"GenProp1382",	"GenProp1383",	"GenProp1384",	"GenProp1385",	"GenProp1386",	"GenProp1387",	"GenProp1388",	"GenProp1389",	"GenProp1390",	"GenProp1391",	"GenProp1392",	"GenProp1393",	"GenProp1394",	"GenProp1395",	"GenProp1396",	"GenProp1397",	"GenProp1398",	"GenProp1399",	"GenProp1400",	"GenProp1401",	"GenProp1402",	"GenProp1403",	"GenProp1404",	"GenProp1405",	"GenProp1406",	"GenProp1407",	"GenProp1408",	"GenProp1409",	"GenProp1410",	"GenProp1411",	"GenProp1412",	"GenProp1413",	"GenProp1414",	"GenProp1415",	"GenProp1416",	"GenProp1417",	"GenProp1418",	"GenProp1419",	"GenProp1420",	"GenProp1421",	"GenProp1423",	"GenProp1424",	"GenProp1425",	"GenProp1426",	"GenProp1427",	"GenProp1428",	"GenProp1429",	"GenProp1430",	"GenProp1431",	"GenProp1432",	"GenProp1433",	"GenProp1434",	"GenProp1436",	"GenProp1437",	"GenProp1438",	"GenProp1439",	"GenProp1441",	"GenProp1442",	"GenProp1443",	"GenProp1444",	"GenProp1445",	"GenProp1446",	"GenProp1447",	"GenProp1448",	"GenProp1449",	"GenProp1450",	"GenProp1451",	"GenProp1452",	"GenProp1453",	"GenProp1454",	"GenProp1455",	"GenProp1457",	"GenProp1458",	"GenProp1459",	"GenProp1460",	"GenProp1461",	"GenProp1462",	"GenProp1463",	"GenProp1464",	"GenProp1465",	"GenProp1466",	"GenProp1467",	"GenProp1468",	"GenProp1469",	"GenProp1470",	"GenProp1471",	"GenProp1472",	"GenProp1473",	"GenProp1474",	"GenProp1475",	"GenProp1476",	"GenProp1477",	"GenProp1478",	"GenProp1479",	"GenProp1480",	"GenProp1481",	"GenProp1482",	"GenProp1483",	"GenProp1484",	"GenProp1485",	"GenProp1486",	"GenProp1487",	"GenProp1488",	"GenProp1489",	"GenProp1490",	"GenProp1491",	"GenProp1492",	"GenProp1493",	"GenProp1494",	"GenProp1495",	"GenProp1496",	"GenProp1497",	"GenProp1498",	"GenProp1499",	"GenProp1501",	"GenProp1502",	"GenProp1503",	"GenProp1504",	"GenProp1505",	"GenProp1506",	"GenProp1507",	"GenProp1508",	"GenProp1509",	"GenProp1510",	"GenProp1511",	"GenProp1512",	"GenProp1513",	"GenProp1514",	"GenProp1515",	"GenProp1516",	"GenProp1517",	"GenProp1518",	"GenProp1520",	"GenProp1521",	"GenProp1522",	"GenProp1523",	"GenProp1524",	"GenProp1525",	"GenProp1526",	"GenProp1527",	"GenProp1528",	"GenProp1529",	"GenProp1530",	"GenProp1533",	"GenProp1534",	"GenProp1535",	"GenProp1536",	"GenProp1537",	"GenProp1538",	"GenProp1539",	"GenProp1540",	"GenProp1541",	"GenProp1542",	"GenProp1543",	"GenProp1544",	"GenProp1545",	"GenProp1546",	"GenProp1547",	"GenProp1548",	"GenProp1549",	"GenProp1550",	"GenProp1551",	"GenProp1552",	"GenProp1553",	"GenProp1554",	"GenProp1555",	"GenProp1556",	"GenProp1557",	"GenProp1558",	"GenProp1559",	"GenProp1560",	"GenProp1561",	"GenProp1562",	"GenProp1563",	"GenProp1564",	"GenProp1565",	"GenProp1566",	"GenProp1567",	"GenProp1568",	"GenProp1569",	"GenProp1570",	"GenProp1571",	"GenProp1572",	"GenProp1573",	"GenProp1574",	"GenProp1575",	"GenProp1576",	"GenProp1577",	"GenProp1578",	"GenProp1579",	"GenProp1580",	"GenProp1581",	"GenProp1582",	"GenProp1583",	"GenProp1584",	"GenProp1585",	"GenProp1586",	"GenProp1587",	"GenProp1588",	"GenProp1589",	"GenProp1590",	"GenProp1591",	"GenProp1592",	"GenProp1593",	"GenProp1594",	"GenProp1595",	"GenProp1596",	"GenProp1597",	"GenProp1598",	"GenProp1599",	"GenProp1600",	"GenProp1601",	"GenProp1602",	"GenProp1603",	"GenProp1604",	"GenProp1605",	"GenProp1606",	"GenProp1607",	"GenProp1608",	"GenProp1609",	"GenProp1610",	"GenProp1611",	"GenProp1612",	"GenProp1613",	"GenProp1614",	"GenProp1615",	"GenProp1616",	"GenProp1617",	"GenProp1619",	"GenProp1620",	"GenProp1621",	"GenProp1622",	"GenProp1623",	"GenProp1624",	"GenProp1625",	"GenProp1626",	"GenProp1627",	"GenProp1628",	"GenProp1629",	"GenProp1630",	"GenProp1631",	"GenProp1632",	"GenProp1633",	"GenProp1634",	"GenProp1635",	"GenProp1636",	"GenProp1637",	"GenProp1638",	"GenProp1639",	"GenProp1640",	"GenProp1641",	"GenProp1643",	"GenProp1644",	"GenProp1645",	"GenProp1646",	"GenProp1647",	"GenProp1648",	"GenProp1649",	"GenProp1650",	"GenProp1651",	"GenProp1652",	"GenProp1653",	"GenProp1654",	"GenProp1655",	"GenProp1656",	"GenProp1657",	"GenProp1658",	"GenProp1660",	"GenProp1661",	"GenProp1662",	"GenProp1663",	"GenProp1664",	"GenProp1665",	"GenProp1666",	"GenProp1667",	"GenProp1668",	"GenProp1669",	"GenProp1670",	"GenProp1671",	"GenProp1672",	"GenProp1673",	"GenProp1674",	"GenProp1675",	"GenProp1676",	"GenProp1677",	"GenProp1678",	"GenProp1679",	"GenProp1680",	"GenProp1681",	"GenProp1682",	"GenProp1683",	"GenProp1684",	"GenProp1685",	"GenProp1686",	"GenProp1687",	"GenProp1688",	"GenProp1689",	"GenProp1690",	"GenProp1691",	"GenProp1692",	"GenProp1693",	"GenProp1694",	"GenProp1695",	"GenProp1696",	"GenProp1697",	"GenProp1698",	"GenProp1699",	"GenProp1701",	"GenProp1702",	"GenProp1703",	"GenProp1704",	"GenProp1705",	"GenProp1706",	"GenProp1707",	"GenProp1708",	"GenProp1709",	"GenProp1710",	"GenProp1711",	"GenProp1712",	"GenProp1713",	"GenProp1715",	"GenProp1716",	"GenProp1717",	"GenProp1718",	"GenProp1719",	"GenProp1720",	"GenProp1721",	"GenProp1722",	"GenProp1723",	"GenProp1724",	"GenProp1725",	"GenProp1726",	"GenProp1727",	"GenProp1728",	"GenProp1729",	"GenProp1730",	"GenProp1731",	"GenProp1732",	"GenProp1733",	"GenProp1734",	"GenProp1735",	"GenProp1736",	"GenProp1737",	"GenProp1739",	"GenProp1740",	"GenProp1741",	"GenProp1742",	"GenProp1743",	"GenProp1744",	"GenProp1745",	"GenProp1746",	"GenProp1747",	"GenProp1748",	"GenProp1749",	"GenProp1750",	"GenProp1751",	"GenProp1752",	"GenProp1753",	"GenProp1754",	"GenProp1755",	"GenProp1756",	"GenProp1757",	"GenProp1758",	"GenProp1759",	"GenProp1760",	"GenProp1761",	"GenProp1762",	"GenProp1763",	"GenProp1764",	"GenProp2007",	"GenProp2088",	"GenProp2089",	"GenProp2090",	"GenProp2097"],
+    "meta-pathways_genprop": ["GenProp0029",	"GenProp0033",	"GenProp0046",	"GenProp0125",	"GenProp0144",	"GenProp0183",	"GenProp0199",	"GenProp0204",	"GenProp0219",	"GenProp0241",	"GenProp0255",	"GenProp0261",	"GenProp0287",	"GenProp0305",	"GenProp0479",	"GenProp0489",	"GenProp0611",	"GenProp0612",	"GenProp0615",	"GenProp0616",	"GenProp0643",	"GenProp0644",	"GenProp0645",	"GenProp0686",	"GenProp0698",	"GenProp0700",	"GenProp0710",	"GenProp0720",	"GenProp0725",	"GenProp0729",	"GenProp0758",	"GenProp0788",	"GenProp0789",	"GenProp0791",	"GenProp0793",	"GenProp0796",	"GenProp0812",	"GenProp0814",	"GenProp0836",	"GenProp0841",	"GenProp0930",	"GenProp0969",	"GenProp0970",	"GenProp0971",	"GenProp0972",	"GenProp0975",	"GenProp1032",	"GenProp1034",	"GenProp2010",	"GenProp2013",	"GenProp2033",	"GenProp2035",	"GenProp2050",	"GenProp2052",	"GenProp2086",	"GenProp2087",	"GenProp2095",	"GenProp2096",	"GenProp2098",	"GenProp2099"]
+    
   },
   "heatmap": {
     "cell_width": 25,
