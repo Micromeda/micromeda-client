@@ -1,533 +1,973 @@
 /**
  * Created by: Lee Bergstrand (2018)
+ * Edited by: Santiago Ruiz-Navas (2020)
  * Description: An object for representing the genome properties tree.
+ * Added description: Functions interacting with the genome properties JSON data.
  */
+// Initialize JSON object and internal variables
+// Get parent path to expand when using the searchbar2. 
+// Create pathway filter
+// Create metapathway filter
+// Expand all 
+// Reset
+// Filter Unique
+// functions to interact with the JSON object/Aka the tree
+
+/**
+ * Collapses a Json object to its root
+ *
+ * @param {object} d the JSON object.
+ * 
+ */
+function collapse(d) {
+  if(d.children) {
+    d._children = d.children;
+    d._children.forEach(collapse);
+    d.children = null;
+  }
+}
+/**
+ * Expands a Json object to its last leaf
+ *
+ * @param {object} d the JSON object.
+ * 
+ */
+function expand(d) {
+  if(d._children) {
+    d.children = d._children;
+    d._children.forEach(expand);
+    d._children = null;
+  }
+}
+
+/**
+ * Follows a node, and expands all its parents. 
+ *
+ * @param {object} d the JSON object.
+ */
+function expandAllParents(d){
+    if(d._children){
+
+        d.children = d._children;
+        d._children = null;
+    }else{
+
+    }
+    if(d.parent){
+        expandAllParents(d.parent);
+    }else{
+
+    }
+}
+
+/**
+ * Searchs for a target node, finds it and expands all its parents. 
+ *
+ * @param {object} d the JSON object.
+ * @returns {object} the target node
+ */
+let o;
+let tofind;
+function getFilteredData(d) {
+    //if(d.data.name.toLowerCase().replace(/\s+/g, '').replace(/[^\w\s]/gi, '') === tofind.toLowerCase().replace(/\s+/g, '').replace(/[^\w\s]/gi, '')){
+    if(d.idx === tofind){
+        //console.log("match");
+        o = d;
+        expandAllParents(o);
+    }else{
+       // console.log("did not find it search children");
+        if(d._children){
+            d._children.forEach(getFilteredData);
+
+        }else{
+
+        }
+
+    }
+    return o;
+}
 
 
 /**
- * A function to be used as a class for representing the genome properties tree.
+ * Follows a node, finds all its parents and creates a path line to their parents. 
  *
- * @param {object} genome_properties_json: The raw json for the genome properties data from the server.
- * @constructor
+ * @param {object} d the JSON object.
+ * @param {logic} ptp flog to stop the search of the last parent of the node. 
+ * @returns {object} output a line that can be drawn using a svg object. 
  */
-function Genome_Properties_Tree(genome_properties_json)
-{
-    this.sample_names = genome_properties_json['sample_names'];
-    this.tree = genome_properties_json['property_tree'];
-    this.node_index = create_node_index(this.tree);
-    this.genome_property_id_to_node_id_index = generate_genome_property_id_index(this.tree);
-    this.select_data = generate_select2_data(this.tree);
-    this.root = this.tree;
-    add_child_to_parent_links(this.tree);
-
-    this.nodes = function () {
-        return get_nodes(this.tree);
-    };
-    this.leafs = function (virtual = true) {
-        if (virtual)
-        {
-            return get_virtual_leaf_nodes(this.tree);
-        }
-        else
-        {
-            return get_real_leaf_nodes(this.tree)
-        }
-    };
-    this.leaf_data = function () {
-        return get_heatmap_data(this.tree, this.sample_names);
-    };
-    this.number_of_leaves = function () {
-        return get_number_of_virtual_leaf_nodes(this.tree);
-    };
-    this.max_nodes_to_leaf = function () {
-        return get_max_tree_depth(this.tree);
-    };
-    this.pruned_tree = function () {
-        return generate_pruned_tree(this.tree);
-    };
-    this.switch_node_enabled_state = function (node_id) {
-        invert_enabled_state(this.node_index, node_id);
-    };
-    this.reset = function () {
-        reset_tree(this.tree);
-    };
-    this.enable_all = function () {
-        enable_all_nodes(this.tree)
-    };
-    this.create_path_to_node = function (node_id) {
-        create_path_to_node(this.node_index, node_id)
-    };
-    this.visible_properties = function () {
-        return get_visible_properties(this.leafs())
-    };
-
-    /**
-     * Creates a object which points to every node in the genome properties tree. The each node is keyed by node id.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {object} An object, keyed by node_id, which points to every node in the genome properties tree.
-     */
-    function create_node_index(root_genome_properties_node)
-    {
-        let node_index = {};
-        let node_identifier = 0;
-
-        let all_nodes = get_nodes(root_genome_properties_node);
-
-        for (let node in all_nodes)
-        {
-            let current_property = all_nodes[node];
-            current_property.node_id = node_identifier;
-            node_index[node_identifier] = current_property;
-            node_identifier++;
-        }
-
-        return node_index
+let ptp = false;
+function get_path_to_parent(d) {
+    if(ptp ===false){
+        output = "M" + (d.yLinkScaledLenght) + "," + (d.nodeY-1) +" L"+ (d.yLinkScaledLenght) + "," + d.nodeY;
+        ptp = true;
+    }
+    if(d.parent) {
+      //create the path there
+        output = output + " L" + d.parent.yLinkScaledLenght + "," + d.nodeY
+                        + " L" + d.parent.yLinkScaledLenght + "," + d.parent.nodeY; 
+        output = output + get_path_to_parent(d.parent);
+    }else{
+        ptp = false;
     }
 
-    function get_visible_properties(leaf_nodes)
-    {
-        let visible_properties = [];
+  return(output);
+}
 
-        for (let node_index in leaf_nodes)
-        {
-            let current_node = leaf_nodes[node_index];
-
-            if (current_node.property_id !== undefined)
-            {
-                visible_properties.push(current_node.property_id);
-            }
-            let parent_genome_properties_ids = get_parents_genome_property_ids(current_node);
-            visible_properties = visible_properties.concat(parent_genome_properties_ids)
-        }
-
-        return [...new Set(visible_properties)]
+/**
+ * Expands or collapses the children of a node and updates graph after that. 
+ *
+ * @param {object} d the JSON object.
+ */
+function click(d) {
+  if (d.children) {
+      d._children = d.children;
+      d.children = null;
+    } else {
+      d.children = d._children;
+      d._children = null;
     }
 
-    function get_parents_genome_property_ids(current_node)
-    {
-        let parent_genome_properties_ids = [];
-        let node_parent = current_node.parent;
+  updateGraph(d);
+}
 
-        if (node_parent)
-        {
-            parent_genome_properties_ids.push(node_parent.property_id);
-            parent_genome_properties_ids = parent_genome_properties_ids.concat(
-                get_parents_genome_property_ids(node_parent));
-        }
+/**
+ * Set of functions that manage the cursor appearance when exploring the functions in the heatmap. 
+ *
+ * @param {object} d the JSON object containing the annotated tree information.
+ */
+function OnMouseOverExpand(d){
+    d3.select(this).style("cursor", "zoom-in"); 
+}
+function OnMouseOverCollapse(d){
+    d3.select(this).style("cursor", "zoom-out"); 
+}
+function OnMouseOverNoMore(d){
+    d3.select(this).style("cursor", "not-allowed"); 
+}
 
-        return parent_genome_properties_ids
-    }
+/**
+ * Set of functions that use the fitler method from a javascript object to filter the tree contents. 
+ *
+ * @param {object} element the JSON object containing the annotated tree information.
+ * @param {object} index the JSON object containing the annotated tree information.
+ * @param {object} array the JSON object containing the annotated tree information.
+ * @return {object} a node of the JSON annotated tree.
+ */
+function filter_partial_y(element, index, array) {
+    return element === "YES";
+}
+function filter_partial_p(element, index, array) {
+    return element === "PARTIAL";
+}
+function filter_partial_n(element, index, array) {
+    return element === "NO";
+}
+function filter_partial_yp(element, index, array) {
+    return (element === "YES" || element === "PARTIAL");
+}
+function filter_partial_yn(element, index, array) {
+    return (element === "YES" || element === "NO");
+}
+function filter_partial_pn(element, index, array) {
+    return (element === "PARTIAL" || element === "NO");
+}
+function filter_partial_ypn(element, index, array) {
+    return (element === "PARTIAL" || element === "NO" || element === "YES");
+}
+function filter_partial_special(element, index, array) {
+    return (element !== array[0]);//you have at least one different result
+}
+/**
+ * When the JSON does not have the type of each node, this function will initialize them.
+ *
+ * @param {object} d the tree data JSON object to initialize
+ * @param {object} global_parameters global parameters coming from the config file.
+ */
+function initJson(d, global_parameters){
+    if (d.property_id){
 
-    /**
-     * Adds reverse links from child to parent to each genome properties tree node.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     */
-    function add_child_to_parent_links(root_genome_properties_node)
-    {
-        if (root_genome_properties_node.children !== undefined)
-        {
-            let children = root_genome_properties_node.children;
-            for (let child in children)
-            {
-                let child_property = children[child];
-
-                child_property.parent = root_genome_properties_node;
-                add_child_to_parent_links(child_property);
-            }
-        }
-    }
-
-    /**
-     * Removes reverse links from child to parent from each genome properties tree node.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     */
-    function remove_child_to_parent_links(root_genome_properties_node)
-    {
-        if (root_genome_properties_node.parent !== undefined)
-        {
-            root_genome_properties_node.parent = undefined
-        }
-
-        if (root_genome_properties_node.children !== undefined)
-        {
-            let children = root_genome_properties_node.children;
-            for (let child in children)
-            {
-                remove_child_to_parent_links(children[child]);
-            }
-        }
-    }
-
-    /**
-     * Gets all the leaf nodes of the genome properties tree, however, disregards parents being disabled.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {Array} An array of leaf nodes.
-     */
-    function get_real_leaf_nodes(root_genome_properties_node)
-    {
-        let nodes = [];
-        if (root_genome_properties_node.children !== undefined)
-        {
-            let children = root_genome_properties_node.children;
-            for (let child in children)
-            {
-                const child_node_data = get_real_leaf_nodes(children[child]);
-                nodes = nodes.concat(child_node_data);
-            }
-        }
-        else
-        {
-            nodes.push(root_genome_properties_node);
-        }
-
-        return nodes;
-    }
-
-    /**
-     * Gets all the leaf nodes of the genome properties tree, however, regards .
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {array} An array of leaf nodes.
-     */
-    function get_virtual_leaf_nodes(root_genome_properties_node)
-    {
-        return get_nodes(root_genome_properties_node, true)
-    }
-
-    /**
-     * Gets the number leaf nodes of the genome properties tree.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {number} The number of leaf nodes.
-     */
-    function get_number_of_virtual_leaf_nodes(root_genome_properties_node)
-    {
-        return get_virtual_leaf_nodes(root_genome_properties_node).length;
-    }
-
-    /**
-     * Gets all the nodes in the genome properties tree.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @param {boolean} only_virtual_leaves: If true, return leaf nodes only.
-     * @return {array} An array of every node.
-     */
-    function get_nodes(root_genome_properties_node, only_virtual_leaves = false)
-    {
-        let nodes = [];
-        let property_is_enabled = true;
-
-        let property_has_children = (root_genome_properties_node.children !== undefined);
-
-        if (only_virtual_leaves === true)
-        {
-            property_is_enabled = root_genome_properties_node.enabled;
-        }
-
-        if (property_has_children && property_is_enabled)
-        {
-            let children = root_genome_properties_node.children;
-            for (let child in children)
-            {
-                const child_node_data = get_nodes(children[child], only_virtual_leaves);
-                nodes = nodes.concat(child_node_data);
-            }
-        }
-        else
-        {
-            nodes.push(root_genome_properties_node);
-        }
-
-        if ((only_virtual_leaves !== true) && property_has_children)
-        {
-            nodes.push(root_genome_properties_node);
-        }
-
-        return nodes
-    }
-
-    /**
-     * Gets data for each cell in the heatmap.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @param {array} sample_names: The names of the samples to be used for the x-axis of the heatmap.
-     * @return {array} An array of objects representing each heatmap cell.
-     */
-    function get_heatmap_data(root_genome_properties_node, sample_names)
-    {
-        let heatmap_data = [];
-        let leaf_nodes = get_virtual_leaf_nodes(root_genome_properties_node);
-        let number_of_samples = sample_names.length;
-
-        for (let node in leaf_nodes)
-        {
-            let current_leaf_node = leaf_nodes[node];
-            let current_leaf_node_sample_results = current_leaf_node['result'];
-
-            let sample_name_counter = 0;
-            for (let result_index in current_leaf_node_sample_results)
-            {
-
-                let heatmap_cell_data = {};
-                heatmap_cell_data.propertyName = current_leaf_node['name'];
-                heatmap_cell_data.genome = sample_names[sample_name_counter];
-                heatmap_cell_data.propertyStatus = current_leaf_node_sample_results[result_index];
-                heatmap_cell_data.node_id = current_leaf_node.node_id;
-
-                heatmap_data.push(heatmap_cell_data);
-
-                if (sample_name_counter === (number_of_samples - 1))
-                {
-                    sample_name_counter = 0
-                }
-                else
-                {
-                    sample_name_counter++
-                }
-            }
-        }
-
-        return heatmap_data
-    }
-
-    /**
-     * In the genome properties tree, not all leaf nodes are at the same level. There are more hops from root
-     * to leaf for some branches than others. This function finds the longest route from root to leaf in the tree and
-     * records of nodes that it passes through.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {number} The maximum number of nodes from root to leaf.
-     */
-    function get_max_tree_depth(root_genome_properties_node)
-    {
-        let leaf_nodes = get_virtual_leaf_nodes(root_genome_properties_node);
-
-        let global_max_node_hop = 0;
-        for (let leaf_index in leaf_nodes)
-        {
-            let leaf = leaf_nodes[leaf_index];
-
-            let current_leaf_parent_hopes = 0;
-
-            while (leaf.parent !== undefined)
-            {
-                current_leaf_parent_hopes += 1;
-                leaf = leaf.parent;
-            }
-
-            if (current_leaf_parent_hopes > global_max_node_hop)
-            {
-                global_max_node_hop = current_leaf_parent_hopes
-            }
-        }
-
-        return global_max_node_hop
-    }
-
-    /**
-     * For a given parent node, flip all child nodes enabled state.
-     *
-     * @param {object} node_index: An object, keyed by node_id, which points to every node in the genome properties tree.
-     * @param {number} node_id: The unique node identifier of a genome property.
-     */
-    function invert_enabled_state(node_index, node_id)
-    {
-        let current_genome_property = node_index[node_id];
-        let initial_state = current_genome_property.enabled;
-        current_genome_property.enabled = !initial_state
-    }
-
-    /**
-     * Strips the leafs from a genome properties the tree.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {object} A deep copy of the original tree with the leafs removed.
-     */
-    function generate_pruned_tree(root_genome_properties_node)
-    {
-        remove_child_to_parent_links(root_genome_properties_node);
-
-        // Deep copy the genome properties tree using jQuery.
-        let pruned_genome_properties_tree = $.extend(true, {}, root_genome_properties_node);
-
-        add_child_to_parent_links(root_genome_properties_node);
-        add_child_to_parent_links(pruned_genome_properties_tree);
-
-        let leafs = get_virtual_leaf_nodes(pruned_genome_properties_tree);
-
-        for (let leaf_index in leafs)
-        {
-            let leaf_property = leafs[leaf_index];
-            leaf_property.children = []
-        }
-
-        return pruned_genome_properties_tree
-    }
-
-    /**
-     * Generates data in a form for which Select2 can interpret. https://select2.org/data-sources/formats
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     * @return {object[]} The option data for the Select2 property selection menu.
-     */
-    function generate_select2_data(root_genome_properties_node)
-    {
-        let all_nodes = get_nodes(root_genome_properties_node);
-
-        let property_id_options = [];
-        let property_name_options = [];
-
-        for (let node in all_nodes)
-        {
-            let current_property = all_nodes[node];
-            let id = current_property.property_id;
-
-            if (id != null)
-            {
-                let name = current_property.name;
-                let id_option = {"id": ('id-' + id), "text": id};
-                let name_option = {"id": ('name-' + id), "text": name};
-
-                property_id_options.push(id_option);
-                property_name_options.push(name_option);
-            }
-        }
-
-        let property_id_options_deduped = deduplicate_object_array(property_id_options, 'id');
-        let property_name_options_deduped = deduplicate_object_array(property_name_options, 'id');
-
-        return [
-            {"text": "Property Names", "children": property_name_options_deduped},
-            {"text": "Property IDs", "children": property_id_options_deduped}
-        ]
-    }
-
-    /**
-     * Due to the genome properties database being a DAG, when it is flatted into a tree, multiple copies of each genome
-     * property show up within. However, each of these duplicate properties has a unique node identifier.
-     * This function makes a map that points from each genome property identifier in the DAG to the several node
-     * identifiers found for the nodes where the genome property shows up in the the flattened tree.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     */
-    function generate_genome_property_id_index(root_genome_properties_node)
-    {
-        let all_nodes = get_nodes(root_genome_properties_node);
-
-        let genprop_id_index = {};
-        for (let node in all_nodes)
-        {
-            let current_property = all_nodes[node];
-            let property_id = current_property.property_id;
-            let node_id = current_property.node_id;
-
-            if (property_id != null)
-            {
-                let current_property_data = [];
-
-                if (genprop_id_index.hasOwnProperty(property_id))
-                {
-                    current_property_data = genprop_id_index[property_id]
-                }
-
-                current_property_data.push(node_id);
-                genprop_id_index[property_id] = current_property_data
-            }
-        }
-
-        return genprop_id_index
-    }
-
-    /**
-     * Resets the genome properties tree back to its default state where only
-     * the root property is enabled and all child properties are disabled.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     */
-    function reset_tree(root_genome_properties_node)
-    {
-        let all_nodes = get_nodes(root_genome_properties_node);
-
-        for (let node in all_nodes)
-        {
-            let current_property = all_nodes[node];
-            current_property.enabled = false
-        }
-
-        root_genome_properties_node.enabled = true
-    }
-
-    /**
-     * Sets the genome property tree to a stat where all nodes are enabled.
-     *
-     * @param {object} root_genome_properties_node: The root node of the genome properties tree.
-     */
-    function enable_all_nodes(root_genome_properties_node)
-    {
-        let all_nodes = get_nodes(root_genome_properties_node);
-
-        for (let node in all_nodes)
-        {
-            let current_property = all_nodes[node];
-            current_property.enabled = true
-        }
-
-        root_genome_properties_node.enabled = true
-    }
-
-    /**
-     * Creates a path of enabled nodes from the root of the genome properties tree to a specific node.
-     *
-     * @param {object} node_index: An object, keyed by node_id, which points to every node in the genome properties tree.
-     * @param {number} node_id: The unique node identifier of a genome property.
-     */
-    function create_path_to_node(node_index, node_id)
-    {
-        let current_genome_property = node_index[node_id];
-        current_genome_property.enabled = true;
-        enable_parent_nodes(current_genome_property)
-    }
-
-    /**
-     * Recursively enables all the parents of a specific node in the tree.
-     *
-     * @param {object} current_node: The current node in the genome properties tree.
-     */
-    function enable_parent_nodes(current_node)
-    {
-        let parent_node = current_node.parent;
-
-        if (parent_node != null)
-        {
-            parent_node.enabled = true;
-            enable_parent_nodes(parent_node)
-        }
-    }
-
-    /**
-     * Takes a single array objects with duplicates and removes duplicate
-     * objects by comparing a specific property of each object.
-     *
-     * @param {object[]} array: The input object array with duplicates.
-     * @param {string} property: The name of the property which should compared for duplicate remove.
-     * @return {object[]}: The deduplicated array.
-     */
-    function deduplicate_object_array(array, property)
-    {
-        const array_of_key_values = array.map(item => {
-            let key = item; // Default the key to the item itself
-            if ((property in item))
-            {
-                key = item[property]; // If the property exists, compare using that
-            }
-            return [key, item];
+        let o = global_parameters['meta-pathways_genprop'].filter(function(x){
+            return x===d.property_id;
         });
-        const map_of_values = new Map(array_of_key_values); // Add each array item to Map
-        const unique_items = map_of_values.values(); // Get iterable of values
-        return Array.from(unique_items);
+        if(o.length>0){
+            d.type = "metapathway";
+        }else{
+            //check if the 
+            o = global_parameters['pathways_genprop'].filter(function(x){
+                return x===d.property_id;
+            });
+            if(o.length>0){
+                d.type = "pathway";
+            }else{
+                // try guild
+                d.type = "all";
+            }
+
+        }
+    }else{
+    }
+    if (d.children) d.children.forEach(function(d) { initJson(d,global_parameters); });
+    return(d);
+}
+/**
+ * Function that filters the nodes by its type e.g., "all","pathway", "metapathway"
+ *
+ * @param {object} d the tree data JSON object to initialize
+ * @param {object} t type of node one wants to filter, "all","pathway", "metapathway"
+ * @param {object} v vector that collects the filtered nodes
+ * @param {object} filter_function filter function to use
+ */
+function filterType(d,t,v,filter_function){
+    if(d.type){
+        if (d.type===t){
+            // check if the node follows the partial, no and yes filter. 
+            if(filter_function ===filter_partial_special){
+
+                if (d.result.some(filter_function)){
+                    v.push(d);
+                }else{
+
+                }
+            }else{
+                if (d.result.every(filter_function)){
+                    v.push(d);
+                }else{
+
+                }
+            }
+
+        }else{
+
+        }
+    }else{
+
+    }
+    if (d.children) d.children.forEach(function(d) { filterType(d,t,v,filter_function); });
+}                    
+/**
+ * a wrapper function for the filter function 
+ *
+ * @param {object} d the tree data JSON object to initialize
+ * @param {object} t type of node one wants to filter, "all","pathway", "metapathway"
+ * @param {object} filter_function filter function to use
+ */
+function filterTypeW(d,t,filter_function){//add a call to the special filter function. 
+    let met_vector = [];
+    filterType(d,t,met_vector,filter_function);
+    return(met_vector);
+}
+/**
+ * Borrowed function,  get unique elements of an array.
+ *
+ * @param {object} arr  array of elements to process
+ * @param {object} comp property of the elements to use as a guide to eliminate repeated elements
+ * @return {vector} unique elements of an array 
+  */
+function getUnique(arr, comp) {
+    // store the comparison  values in array
+    const unique =  arr.map(e => e[comp])
+
+    // store the indexes of the unique objects
+    .map((e, i, final) => final.indexOf(e) === i && i)
+
+    // eliminate the false indexes & return unique objects
+    .filter((e) => arr[e]).map(e => arr[e]);
+
+    return unique;
+}
+
+/**
+ * Initializing custom variables for each node in the Json data tree.
+ *
+ * @param {object} d  JSON tree data object
+ * @param {object} y0 depth of the JSON tree data object (the size of the longest tree branch) 
+ * @param {object} k  The size of the space in-between the center of each square in the heatmap
+ * @return {object} modified d JSON tree data object
+  */
+function initCustomVars(d, y0, k) {
+    let parent_string = "root";
+    if(d.parent){
+        parent_string = d.parent.data.property_id;
+    }else{
+        parent_string = "root";
+    }
+    let h = d.data.property_id?d.data.property_id:d.data.step_id;// the name, lowecase and with no spaces.
+    d.yLinkScaledLenght = (y0= (1+d.depth)) * k; //like an X distribution of the links in the Y axis network
+    d.idx               = d.data.name.toLowerCase().replace(/\s+/g, '').replace(/[^\w\s]/gi, '')+h+parent_string;
+    if (d.children) d.children.forEach(function(d) { initCustomVars(d, y0, k); });
+    return(d);
+}
+
+/**
+ * Animation of a gradually change of color
+ *
+ * @param {object} target_color  the final color
+ * @param {object} target_object the d3 select object which the color will be changed
+   */
+function borderTween(target_color,target_object) {
+    return function() {
+    let ip = d3.interpolateRgb(target_object.style("fill"),target_color);
+    return function(t) { 
+        target_object.style("fill",ip(t));
+    };
+  };
+} 
+/**
+ * Animating the movement of the screen to a target object
+ * @param {object} offset  the final color
+*/
+function scrollTween(offset) {
+  return function() {
+    let ip = d3.interpolateNumber(d3.select(".mct").property("offsetTop"), offset);
+    return function(t) { d3.select(".mct").node().scrollTo(0, ip(t)); };
+  };
+}
+
+function is_node_downloadable(d){
+    return(d.data.step_id && !d.data.result.every(d =>d==="NO"));
+}
+//@param {object} rawJson the JSON tree data
+//@param {object} general_parameters config file parameters
+//@return {object} selected_data the tree to play with for the next steps
+function initHeatmapData (){
+    //init the colors from the legends objects
+    //init the data from the checkboxes
+    let heatmap_parameters = diagram_all_parameters.general_content.heatmap;
+    let margin_parameters  = diagram_all_parameters.margins;
+    let filter_mode        = Number(d3.select(".fry").property("checked")).toString() + Number(d3.select(".frp").property("checked")).toString() + Number(d3.select(".frn").property("checked")).toString()+ Number(d3.select(".frs").property("checked")).toString();//testing the glo
+    let filter_function    = filter_partial_ypn;
+    initJson(raw_data,diagram_all_parameters.global);
+
+    
+    switch(filter_mode) {
+        case "0010":
+            //Get only NO
+            filter_function = filter_partial_n;
+        break;
+        case "0100":
+            //Get only PARTIAL
+            filter_function = filter_partial_p;
+        break;
+        case "0110":
+            //Get PARTIAL OR NO
+            filter_function = filter_partial_pn;
+        break
+        case "1000":
+            //Get only YES
+            filter_function = filter_partial_y;
+        break
+        case "1010":
+            //Get YES OR NO
+            filter_function = filter_partial_yn;
+        break
+        case "1100":
+            //Get YES OR PARTIAL
+            filter_function = filter_partial_yp;
+        break
+        case "1110":
+            ////Get YES OR PARTIAL OR NO (all)
+            filter_function = filter_partial_ypn;
+        break
+        case "0001":
+            ////Get special
+            filter_function = filter_partial_special;
+        break
+        default:
+          // code block
+          console.log("whaaaat?");
+    }
+    let metapathways_vector        = filterTypeW(raw_data,"metapathway",filter_function);
+    let pathways_vector            = filterTypeW(raw_data,"pathway",filter_function);
+
+    let metapathways_vector_unique = getUnique(metapathways_vector,'name');
+    let pathways_vector_unique     = getUnique(pathways_vector,'name');
+    
+    //******************************************************
+    //**     TRANSFORMING TO D3 HIERARCHY OBJECT JSON     **
+    //******************************************************
+    let all_data         = d3.hierarchy(raw_data,function(d){return d.children;});
+    let metapathway_data = d3.hierarchy({"children":metapathways_vector_unique,"enabled":false,"name":"meta-pathways","property_id":"GenProp_metapaths","result":raw_data.result},function(d){return d.children;});
+    let pathway_data     = d3.hierarchy({"children":pathways_vector_unique,"enabled":false,"name":"pathways","property_id":"GenProp_paths","result":raw_data.result},function(d){return d.children;});
+
+    initCustomVars(all_data, all_data.depth, heatmap_parameters.Y_link_lenght / all_data.height);
+
+    initCustomVars(metapathway_data, metapathway_data.depth, heatmap_parameters.Y_link_lenght / metapathway_data.height);
+    initCustomVars(pathway_data, pathway_data.depth, heatmap_parameters.Y_link_lenght / pathway_data.height);
+    
+    let counter = 0;
+    all_data.eachBefore(function(d){
+        d.or = counter;//or stands for order
+        counter++;
+        return(d.or);
+    });
+    counter = 0;
+    metapathway_data.eachBefore(function(d){
+        d.or = counter;//or stands for order
+        counter++;
+        return(d.or);
+    });
+    counter = 0;
+    pathway_data.eachBefore(function(d){
+        d.or = counter;//or stands for order
+        counter++;
+        return(d.or);
+    });
+    counter = 0;
+    
+    //######################################################################
+    //##                 FILTERING PATH, METAPATH AND ALL                 ##
+    //######################################################################
+    let place_holder_text = "Search all functions here";
+    selected_data         = all_data;
+    
+    switch(d3.select(".fms").attr("data-filter")) {
+        case "all":
+            //console.log("all");
+            selected_data     = all_data;
+            selected_data.descendants().slice(1).forEach(expand);
+            place_holder_text = "Search all functions here";
+        break;
+        case "path":
+            selected_data     = pathway_data;
+            selected_data.descendants().slice(1).forEach(expand);
+            place_holder_text = "Search for pathways here";
+        break;
+        case "mpath":
+            selected_data     = metapathway_data;
+            selected_data.descendants().slice(1).forEach(expand);
+            place_holder_text = "Search for metapathways here";
+        break
+        default:
+          console.log("whaaaat?");
+    }
+
+    //######################################################################
+    //##                 INITIALIZING THE SELECT2 or SEARCH               ##
+    //######################################################################
+    $('.ndfs').select2({
+        placeholder: place_holder_text,
+        width: 'resolve',
+        minimumInputLength: 3
+    }).on("select2:select", function(evt){
+            //Conecting the select to the hierarchical dataset
+            o="";
+            tofind = evt.params.data.id;
+            selected_data.descendants().forEach(getFilteredData);
+            updateGraph();
+
+            let tar = d3.selectAll("."+o.idx)
+                .select(".y-node")
+                .style("fill", "blue")
+            ;
+            d3.transition()
+                .duration(1000)
+                .tween("scroll", scrollTween(o.nodeY*(d3.select(".chart").attr("scale"))))
+                .transition()
+                    .duration(5000)
+                    .tween("selected_text", borderTween("black",tar))
+            ;
+        }
+    );
+    
+    //######################################################################
+    //##          INITIALIZING THE OPTIONS TO SHOW IN THE SEARCH2         ##
+    //######################################################################        
+    let opt_Enter = d3.select(".ndfso_names").selectAll(".ndfso_names_options")
+        .data(selected_data.descendants(),function(d) {
+               return d.idx;
+           });
+    opt_Enter.join(
+        function (enter){
+            let optEnter = enter.append("option")
+                .attr("class","ndfso_names_options")
+                .attr("value",function(d){
+                        return d.idx;
+                    }
+                )
+                .text(function(d){
+                        return d.data.name;
+                    }
+                );
+            return(optEnter);
+        },
+        function(update){
+            let optUpdate = update;
+            optUpdate.select("option.ndfso_names_options")
+                .attr("value",function(d){
+                            return d.idx;
+                        }
+                    )
+                    .text(function(d){
+                        return d.data.name;
+                    }
+                );
+        },
+        function(exit){
+            let optExit = exit.remove();
+            return(optExit);
+        }
+    );
+    selected_data.descendants().slice(1).forEach(collapse);
+    //**************************************************************
+    //**                    ZOOM                                  **
+    //**************************************************************
+    const window_width  = window.innerWidth - margin_parameters.left - margin_parameters.right;
+    const window_height = window.innerHeight - margin_parameters.top - margin_parameters.bottom;
+    const minZoom            = 0.2;
+    const maxZoom            = 1.05;
+    let zScale = d3.scaleLinear()
+                .domain([0,100])
+                .range([minZoom,maxZoom]);
+    let zoomv =  d3.zoom()
+        .on("zoom", function () {
+            //UPDATE ZOOM BAR
+            const scrollRatio = d3.select(".mct").property("scrollTop")/d3.select(".mct").property("scrollHeight");
+
+            d3.select(".chart").transition()
+                .duration(1000)
+                .attr("transform", " translate("+0+ ","+0+")  scale(" + d3.event.transform.k+")")
+                .attr("scale",d3.event.transform.k)
+            ;
+
+            //SCALING THE SVG, SO EVEN IF I ZOOM, I CAN STILL EXPLORE THE WHOLE OBJECT
+            d3.select(".div_svg").transition()
+                .duration(1000)
+                .attr("width", (window_width + margin_parameters.left + margin_parameters.right)*d3.event.transform.k)
+                .attr("height", (heatmap_parameters.nodeSpaceY*(selected_data.descendants().length)+heatmap_parameters.sample_name_height+20)*d3.event.transform.k)
+                .attr("viewBox", [0,0, (window_width + margin_parameters.left + margin_parameters.right)*d3.event.transform.k, (heatmap_parameters.nodeSpaceY*(selected_data.descendants().length)+heatmap_parameters.sample_name_height+20)*d3.event.transform.k])
+            ;
+            //SCALING THE Y POSITION OF THE SCROLL BAR TO KEEP THE SCREEN ORIGINAL COORDINATE. BEFORE ZOOMING. 
+            d3.select(".mct").node().scrollTo(0, scrollRatio*d3.select(".mct").property("scrollHeight"));
+
+        })
+        .scaleExtent([0.2, 1.05])
+    ;
+
+    d3.select(".chart").call(zoomv)
+        .on("dblclick.zoom", null)
+        .on("wheel.zoom", null)
+        .on("touchstart.zoom", null)
+        .on("touchmove.zoom", null)
+        .on("touchend.zoom", null)
+    ;
+    d3.select(".zcc").property("value",  50);
+
+    d3.select(".chart").call(zoomv.transform,d3.zoomIdentity.translate(0,0).scale(zScale(d3.select(".zcc").property("value"))));
+
+    d3.select(".chart")
+        .attr("transform","scale("+zScale(d3.select(".zcc").property("value"))+")")
+        .attr("scale",zScale(d3.select(".zcc").property("value")))
+    ;
+    d3.select(".xn").attr('transform', 'translate(' + (heatmap_parameters.Y_link_lenght + heatmap_parameters.link_margin) + ',' + (d3.select(".mct").property("scrollTop")*(1/d3.select(".chart").attr("scale"))) + ')');
+    d3.select(".zcc").on("input", function(d){
+        zoomv.scaleTo(d3.select(".chart"),zScale(d3.select(".zcc").property("value")));
+    });
+    updateGraph();
+}
+//@param {object} selected_data the JSON tree filtered data
+//@return {void}  draws the interactive heatmap elements
+function updateGraph (){
+    const minZoom = 0.2;
+    const maxZoom = 1.05;
+    let zScale    = d3.scaleLinear()
+        .domain([0,100])
+        .range([minZoom,maxZoom])
+    ;
+    let heatColor = d3.scaleOrdinal()
+        .domain(['YES','PARTIAL','NO'])
+        .range([d3.select(".rect0").style("fill"),d3.select(".rect1").style("fill"),d3.select(".rect2").style("fill")]);//takes them from the legend objects
+    ;
+    //NODE manipulation
+    let nodes                        = selected_data.descendants().slice(1);//the slice is used to avoid showing the first node
+    const downloadable_steps         = [];
+    
+    nodes.sort(function(a, b){return a.or - b.or;});
+    update_genome_properties_info(nodes.map(d => d.data.property_id));
+    const scale   = zScale(d3.select(".zcc").property("value"));
+    
+    counter       = 0;
+    nodes.forEach(function(d){
+        d.id    = counter;
+        d.nodeY = ((d3.select(".div_svg").attr("data-nodeSpaceY"))*(d.id+1)) - (d3.select(".div_svg").attr("data-nodeSpaceY")/2);
+        counter++;
+        return(d.id);
+    });
+    counter      = 0;
+    //End NODE manipulation
+    
+    d3.select(".div_svg")
+        .attr("width", (window.innerWidth)*scale)
+        .attr("height", (parseInt(d3.select(".div_svg").attr("data-nodeSpaceY"))*nodes.length + parseInt(d3.select(".div_svg").attr("data-sample_name_height")) + 20)*scale)
+        .attr("viewBox", [0, 0, (window.innerWidth)*scale, parseInt(d3.select(".div_svg").attr("data-nodeSpaceY")*nodes.length + parseInt(d3.select(".div_svg").attr("data-sample_name_height")) + 20)*scale])
+    ;
+    //##################################################################
+    //##                     DRAWING THE NETWORK                      ##
+    //##################################################################
+    let yNode = d3.select(".yn").selectAll('g.y-node')
+            .data(nodes,function(d) {
+                return d.idx;
+            });
+        yNode.join(
+            function(enter){
+                let yNodeEnter = enter
+                        .append("g")
+                        //.transition()
+                        .attr('class',function(d) {
+                            return 'y-node '+ d.idx;}
+                        );
+                    yNodeEnter.append("text")
+                        .attr('class',function(d) {
+                            return 'y-node '+ d.idx;}
+                        )
+                        .attr('transform', function(d) { 
+                            return 'translate(' + d.yLinkScaledLenght + ',' + (d.nodeY+3) + ')'; 
+                        })
+                        .style('fill', "white")
+                        .attr("font-family", " Arial, sans-serif")
+                        .attr("font-size", 12)
+                        .text(function(d) {
+                            let t = "normal";
+                            if(d.height ===0){
+                                t = d.data.name;
+                            }else{
+                                t = d._children?d.data.name+"  +":d.data.name;
+                            }    
+                                return t;
+                            }
+                        )
+                        .style("font-weight", function(d) {
+                            let fw = "normal";
+                            if(d.height ===0){
+                                fw = "normal";
+                            }else{
+                                fw = d.children ? "normal": "bold";
+                            }
+                            return (fw);
+                        })
+                        .style("font-style", function(d) {
+                            return (d.children ? "italic": "normal");
+                        })
+                        //cursor type
+                        .on('mouseover', function (d){//Changing the cursor appearance 
+                            if(d.children){
+                                d3.select(this).style("cursor", "zoom-out");
+                            }else{
+                                d3.select(this).style("cursor", "zoom-in");
+                            }
+                            if(d.height === 0){
+                                d3.select(this)
+                                    .style("cursor", "not-allowed");
+                                }
+                            }
+                        )
+                        .on('click', click)
+                        .transition()
+                            .duration(d3.select(".yn").attr("data-intro_animation_time"))
+                            .style('fill', "black")
+                ;
+                return(yNodeEnter);
+            },
+            function(update){
+                let yNodeUpdate = update
+                ;
+                    yNodeUpdate.select("text")
+                        .style("font-weight", function(d) {
+                            let fw = "normal";
+                            if(d.height ===0){
+                                fw = "normal";
+                            }else{
+                                fw = d.children ? "normal": "bold";
+                            }
+                            return (fw);
+                        })
+                        .style("font-style", function(d) {
+
+                            return (d.children ? "italic": "normal");
+                        })
+                        .text(function(d) {
+                            let t = "normal";
+                            if(d.height ===0){
+                                t = d.data.name;
+                            }else{
+                                t = d._children?d.data.name+"  +":d.data.name;
+                            }    
+                                return t;
+                            }
+                        )
+                        .on('mouseover', function (d){//Changing the cursor appearance 
+                            if(d.children){
+                                d3.select(this).style("cursor", "zoom-out");
+                            }else{
+                                d3.select(this).style("cursor", "zoom-in");
+                            }
+                            if(d.height === 0){
+                                d3.select(this)
+                                    .style("cursor", "not-allowed");
+                                }
+                            }
+                        )
+                        .attr('transform', function(d) { return 'translate(' + d.yLinkScaledLenght + ',' + (d.nodeY+3) + ')'; })
+                        .transition()
+                            .duration(d3.select(".yn").attr("data-intro_animation_time"))
+                            .style("fill","black")
+                ;
+                return(yNodeUpdate);
+            },
+            function(exit){
+                let yNodeExit = exit;
+                    yNodeExit.select("text.y-node") 
+                            .transition()
+                            .duration(d3.select(".yn").attr("data-intro_animation_time"))
+                            .style("fill","white")
+                    ;
+                    yNodeExit.remove();
+                return(yNodeExit);
+            }
+        );
+    //##################################################################
+    //##                 END DRAWING THE NETWORK                      ##
+    //##################################################################
+
+    //##################################################################
+    //##                     DRAWING THE BOXES                        ##
+    //##################################################################
+    let nCols = d3.select(".table").attr("data-sample_names_length");
+    let bandX = d3.scaleBand()
+        .domain(d3.range(nCols))
+        .range([0, d3.select(".table").attr("data-heatmapWidth")]);
+
+    let rows = d3.select(".table").selectAll('.row')
+        .data(nodes,function(d) {
+            return d.idx;
+        });
+    rows.join(
+        function(enter){
+            let rowEnter = enter.append('g')
+                .attr('class',function(d) {return 'row '+ d.idx;})
+                .style('opacity', 0)
+                .attr('transform', function(d, i) {
+
+                    return 'translate(0, ' + (d.nodeY- (d3.select(".div_svg").attr("data-nodeSpaceY")/2)) + ')';
+                });  
+            let rowEnterRect = rowEnter
+                .selectAll('rect')
+                .data(function(d) {
+                    return(d.data.result);
+                });
+            rowEnterRect
+                .join(
+                    function(enter){
+                        let rowEnterRect = enter.append('rect')
+                            .style('fill', function (d) {return heatColor(d);})
+                            .style('opacity', 0.7)
+                            .attr('x', function(d, i) {return bandX(i);})
+                            .style('stroke', '#000')
+                            .style('stroke-width', 1)
+                            .attr('width', bandX.bandwidth())
+                            .attr('height', d3.select(".div_svg").attr("data-nodeSpaceY"))
+                        return(rowEnterRect);
+                    }
+                );
+            rowEnter.transition()
+                .duration(d3.select(".yn").attr("data-intro_animation_time"))
+                    .style('opacity', 1)
+            ;
+            return(rowEnter);
+        },
+        function(update){
+            let rowUpdate = update;
+                rowUpdate
+                    .transition()
+                        .duration(1500)
+                        .attr('transform', function(d, i) {
+                            return 'translate(0, ' + (d.nodeY- (d3.select(".div_svg").attr("data-nodeSpaceY")/2)) + ')';
+                        })
+                        .style('opacity', 1)
+                        ;
+                rowUpdate.selectAll('rect')
+                    .style('fill', function (d) {
+                            return heatColor(d);
+                        })
+                    .style('opacity', 0.7)
+                    .attr('x', function(d, i) {return bandX(i);})
+                    .style('stroke', '#000')
+                    .style('stroke-width', 1)
+                    .attr('width', bandX.bandwidth())
+                    .attr('height', d3.select(".div_svg").attr("data-nodeSpaceY"));
+
+            return(rowUpdate);
+        },
+        function(exit){
+            let rowExit = exit.remove();
+            return(rowExit);
+        }
+    );
+    // ADD for each node an icon that will activate the extended metadata. 
+    let m_icon = d3.select(".metadata_icon_holder").selectAll('g.metadata_icon')
+        .data(nodes,function(d) {
+            return d.idx;
+        });
+    m_icon.join(
+        function(enter){
+            let iconEnter = enter.append('g')
+                .style('opacity', 1)
+                .attr('class',function(d) {return 'metadata_icon '+ d.idx;})
+                .attr('transform', function(d, i) {
+                    return 'translate(0, ' + ((d.nodeY)+ (d3.select(".div_svg").attr("data-nodeSpaceY")/2)) + ')';
+                })
+                .append('text')
+                    .attr('font-family', 'FontAwesome')
+                    .attr('class', function(d,i) { return 'metadata_icon_text'+i;} )
+                    .text(function(d) { return '\uf205' ;})
+                    .on("mouseover", function (hovered_tree_node) {
+                        //Activating the text
+                        d3.select(this)
+                                .text(function(d) { return '\uf204' ;})
+                                .style("cursor","pointer")
+                        ;
+                        let tooltip = d3.select(".toolt");
+                        tooltip.attr("data-class",d3.select(this).attr("class"));
+
+                        if(hovered_tree_node.data.property_id){
+
+                            generate_property_tooltip_html_content(tooltip, hovered_tree_node);
+                        }else{
+
+                            generate_step_tooltip_html_content(tooltip, hovered_tree_node);
+                        }
+                  })
+                  .on("mouseout", function () {
+                        //deactivating the metadata icon
+                        d3.select(this)
+                                .text(function(d) { return '\uf205' ;})
+                                .style("cursor","auto")
+                        ;
+                  });
+
+            ;  
+            iconEnter.transition()
+                .duration(d3.select(".yn").attr("data-intro_animation_time"))
+                    .style('opacity', 1)
+            ;
+            return(iconEnter);
+        },
+        function(update){
+            let iconUpdate = update;
+                iconUpdate
+                    .transition()
+                        .duration(1500)
+                        .attr('transform', function(d, i) {
+                            return 'translate(0, ' + (d.nodeY + (d3.select(".div_svg").attr("data-nodeSpaceY")/2)) + ')';
+                        })
+                        .style('opacity', 1)
+                        ;
+
+            return(iconUpdate);
+        },
+        function(exit){
+            let iconExit = exit.remove();
+            return(iconExit);
+        }
+    );
+
+    
+    if (!loaded_micromeda_file){
+        console.log("no micromeda file loaded, can not download properties");
+    }else{
+//        console.log("I loaded a micromeda file, check if we have to draw the download icons");
+        downloadable_steps.push(nodes.filter(is_node_downloadable));
+
+        let d_icon = d3.select(".download_icon_holder").selectAll('.download_icon')
+            .data(downloadable_steps[0],function(d) {
+                return d.idx;
+            });
+        d_icon.join(
+            function(enter){
+                let iconEnter = enter.append('g')
+                    .style('opacity', 1)
+                    .attr('class',function(d) {return 'download_icon '+ d.idx;})
+                    .attr('transform', function(d, i) {
+                        return 'translate(0, ' + ((d.nodeY)+ (d3.select(".div_svg").attr("data-nodeSpaceY")/2)) + ')';
+                    })
+                    .append('text')
+                        .attr('font-family', 'FontAwesome')
+                        .attr('class', function(d,i) { return 'download_icon_text '+d.idx;} )
+                        .text(function(d) { return '\uf019' ;})
+                        .on("mouseover", function (hovered_tree_node) {
+                            //Activating the text
+                            d3.select(this)
+                                    .text(function(d) { return '\uf019' ;})
+                                    .style("cursor","pointer")
+                            ;
+
+                            let tooltip = d3.select(".toolt");
+                            tooltip.attr("data-class",d3.select(this).attr("class"));
+
+                            generate_download_tooltip_html_content(tooltip, hovered_tree_node);
+
+                      })
+                      .on("mouseout", function () {
+
+                            d3.select(this)
+                                    .text(function(d) { return '\uf019' ;})
+                                    .style("cursor","auto")
+                            ;
+                      });
+
+                ;  
+                iconEnter.transition()
+                    .duration(d3.select(".yn").attr("data-intro_animation_time"))
+                        .style('opacity', 1)
+                ;
+                return(iconEnter);
+            },
+            function(update){
+                let iconUpdate = update;
+                    iconUpdate
+                        .transition()
+                            .duration(1500)
+                            .attr('transform', function(d, i) {
+                                return 'translate(0, ' + (d.nodeY + (d3.select(".div_svg").attr("data-nodeSpaceY")/2)) + ')';
+                            })
+                            .style('opacity', 1)
+                            ;
+
+                return(iconUpdate);
+            },
+            function(exit){
+                let iconExit = exit.remove();
+                return(iconExit);
+            }
+        );
+    }
+};
+//@param {array} genome_proprety_ids, is an array of all the genpropids of the visible nodes
+//@return {void} sets in localforage the additional metadata for the set of ids received. 
+function update_genome_properties_info(genome_property_ids)
+{
+    for (let id_index in genome_property_ids)
+    {
+        let current_id = genome_property_ids[id_index];
+
+        localforage.getItem(current_id).then(function (local_genome_properties_data) {
+            if (local_genome_properties_data === null)
+            {
+                let data_url = back_end_url + 'genome_properties/' + current_id;
+                jQuery.getJSON(data_url, function (remote_genome_properties_data) {
+                    console.log("data_url");
+                    console.log(data_url);
+                    console.log("remote_genome_properties_data");
+                    console.log(remote_genome_properties_data);
+                    
+                    localforage.setItem(current_id, remote_genome_properties_data).then(function () {
+                        
+                    }).catch(function (err) {
+                        console.log(err);
+                    });
+                });
+            }
+        }).catch(function (err) {
+            console.log(err);
+        });
     }
 }
