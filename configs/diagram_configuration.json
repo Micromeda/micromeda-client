@@ -3,7 +3,7 @@
     "top": 20,
     "width": "100%",
     "logo_url": "https://imagizer.imageshack.com/img924/2927/rgQ28R.png",
-    "tile_text": "Interactive Micromeda-Viz"
+    "tile_text": "Micromeda"
   },
   "general_content": {
     "general_container":
@@ -29,7 +29,7 @@
             },
             "legends":{
                 "color_scale_domain":["YES","PARTIAL","NO"],
-                "color_scale_range":["#6c6c6c","#cecece","white"],
+                "color_scale_range":["#6c6c6c","#cecece","#FFFFFF"],
                 "legend_menu_width":"100%",
                 "legend_menu_height":80,
                 "legend_menu_vertical-align":"middle",
@@ -38,7 +38,12 @@
         },
     "heatmap":
         {
-            "Y_link_lenght":80,                               
+            "Y_link_lenght":80,
+            "heatmap_icon_container_width":20,
+            "heatmap_controls_left_margin":20,
+            "heatmap_controls_margin":5,
+            "heatmap_function_label_width": 240,
+            "heatmap_sample_square_size": 20,
             "link_margin":5,
             "sample_name_height":200,
             "intro_animation_time": 2000,

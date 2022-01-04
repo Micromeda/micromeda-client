@@ -58,6 +58,7 @@ function draw_top_navbar(topnavbar_parameters){
             .append("a")
                 .attr("class","nav-link")
                 .attr("href","./html/upload_view.html")
+                //.attr("href","#")
                 .text("Upload")
     ;
     // If you want to add controls to the navbar add here appened to topnavbar elements
@@ -117,17 +118,17 @@ function draw_content_container(general_parameters){
         .attr("id","fs1")
         .attr("class","fms form-control")//filter menu select
         .attr("name","filter")
-        .attr("data-filter","path")
+        .attr("data-filter","all")
     ;
     sidebar_form_group_select.append("option")
         .attr("class","fmdo")//option
         .attr("value","all")
+		.attr("selected","true")
         .text("All")
     ;
     sidebar_form_group_select.append("option")
         .attr("class","fmdo")//options
         .attr("value","path")
-        .attr("selected","true")
         .text("Pathways")
     ;
     sidebar_form_group_select.append("option")
@@ -221,79 +222,74 @@ function draw_content_container(general_parameters){
         .range(legends_parameters['color_scale_range']);
     ;
     let legend_menu = sidebar_form_group.append("div")
+        .attr("class","form-group")
     ;
     legend_menu.append("label")
                 .attr("for","sdbf_c")//filter menu select filter select
                 .text("Click the legends to change color")
             ;
-    let legends = legend_menu.append('svg')
+    //let legends = legend_menu.append('svg')
+    let legends = legend_menu.append('div')
         .attr("id","sdbf_c")
         .attr("width",legends_parameters['legend_menu_width'])
         .attr("height",legends_parameters['legend_menu_height'])
         .style("vertical-align", legends_parameters['legend_menu_vertical-align'])
-        .append("g")
-            .attr('class', 'legends')
-            .attr('transform', 'translate('+ (0) + ',' + (0) + ')')
     ;
     let GLegends = legends.selectAll(".leg")
             .data(legends_parameters['color_scale_domain'])
     ;
+	//HERE I can update the color customization
     GLegends.join(
         function(enter){
-            let GLegendsEnter = enter.append("g")
-                .attr('class', 'leg')
-                .attr('transform', 'translate(' + (0) + ',' + (0) + ')')
-                .style("vertical-align", "middle")
-                .on("click",function(d,i){
-                    if(d3.select(".c"+i).style("visibility")==="hidden"){
-                        d3.select(".c"+i)
-                            .style("visibility","visible")
-                            .style("top",(this.getBoundingClientRect().top-3)+"px")
-                            .style("left",120+"px")
-                        ;
-                    }else{
-                        d3.select(".c"+i)
-                            .style("visibility","hidden");
-                    }
+        let GLegends_div_Enter = enter
+                .append("div")
+                .attr("class","form-group row")
+        ;
+        GLegends_div_Enter.append("label")
+            .attr("for",function(d,i){
+              return "rect"+i;  
+            })//filter menu select filter select
+            .attr("class","col-form-label col-sm-4")
+            .style("font-size","12px")
+            .text(d =>d)
+        ;
+        GLegends_div_Enter
+                .append("input")
+                .attr("id",function(d,i){
+                  return "rect"+i;  
                 })
-            ;
-            GLegendsEnter.append("rect")
                 .attr("class",function(d,i){
-                    return "rect"+i;
+                  return "leg rect"+i;  
                 })
+                .attr("type","color")
+                .attr("data-color",function(d,i) {
+                        return (legends_parameters["color_scale_range"][i]);
+                    })
+                .attr("value",function(d,i) {
+                    return (legends_parameters["color_scale_range"][i]);
+                    })
                 .attr("height",legends_parameters['legend_square_height'])
                 .attr("width",legends_parameters['legend_square_height'])
-                .style("stroke", "grey")
-                .style("stroke-width", 1)
-                .attr("x",0)
-                .attr("y",function(d,i) {
-                        return ((i*legends_parameters['legend_square_height'])+10);
-                    }
-                )
-                .attr("fill",d => heatColor(d))
+                //.attr("fill",d => heatColor(d))
+                .style("fill",d => heatColor(d))
+                .on("change",function(){
+                    //change color of the respective legend 
+                     d3.select(this)
+                          .style("fill",this.value);
+                     ;
+                     d3.select(this)
+                         .attr("data-color",this.value)
+                     ;
+                     updateGraph();
+                 })
             ;
-            GLegendsEnter.append("text")    
-                .attr("x", legends_parameters['legend_square_height']+5)
-                .style("font-size","12px")
-                .attr("y",function(d,i) {
-                        return ((i*legends_parameters['legend_square_height'])+((legends_parameters['legend_square_height'])*(3/4))+10 );
-                    }
-                )
-                .text(d =>d)
-            ;
-            return(GLegendsEnter);
+            return(GLegends_div_Enter);
         })
     ;
     sidebar_form_group.append("hr");
     //Drawing the Buttons
     let sidebar_buttons_form_group = sidebar_form_group.append("div")//side bar buttion
         .attr("class","form-group text-center")
-    ;
-    sidebar_buttons_form_group.append("button")
-        .attr("id","update")
-        .attr("type","button")
-        .attr("class","btn btn btn-outline-primary btn-sm ub")   
-        .text("Update")
     ;
     sidebar_buttons_form_group.append("button")
         .attr("type","button")
@@ -318,6 +314,25 @@ function draw_content_container(general_parameters){
         })
     ;
     sidebar_form_group.append("hr");
+    //Drawing Zoom controls
+    let sidebar_zoom_control = sidebar_form_group.append("div")//side bar buttion
+        .attr("class","form-group")
+    ;
+    sidebar_zoom_control.append("label")
+        .attr("for","zc")//filter menu select filter select
+        .text("Zoom control")
+    ;
+    sidebar_zoom_control.append("input")
+        .attr("class","form-control zcc")
+        .attr("id","zc")
+        .attr("type","range")
+        .attr("min",0)
+        .attr("max",100)
+        .attr("value",80)
+		//modify the padding to cero
+		.style("padding",0)
+    ;
+    sidebar_form_group.append("hr");
     //Drawing the select2 Search selector
     let sidebar_select2_search = sidebar_form_group
         .append("select")//navigationbar division select
@@ -334,38 +349,31 @@ function draw_content_container(general_parameters){
         .attr("label","Property Names")
         .attr("class","ndfso_names")
     ;
-    sidebar_form_group.append("hr");
-    //Drawing Zoom controls
-    let sidebar_zoom_control = sidebar_form_group.append("div")//side bar buttion
-        .attr("class","form-group")
-    ;
-    sidebar_zoom_control.append("label")
-        .attr("for","zc")//filter menu select filter select
-        .text("Zoom control")
-    ;
-    sidebar_zoom_control.append("input")
-        .attr("class","form-control zcc")
-        .attr("id","zc")
-        .attr("type","range")
-        .attr("min",0)
-        .attr("max",100)
-        .attr("value",50)
-    ;
-    
 }
 /**
  * Calculates the heatmap width
- * @param {object} margin_parameters The configuration parameters for footer.
- * @param {object} heatmap_parameters The configuration parameters for footer. *
+  * @param {object} heatmap_parameters The configuration parameters for footer. *
+ * @param {array} sample_names the sample names of the micromeda file
  * @return {int} heatmap_width
  */
-function calculate_heatmap_width(heatmap_parameters, margin_parameters){
-    const window_width  = window.innerWidth - margin_parameters["left"] - margin_parameters["right"];
-    const window_height = window.innerHeight - window.innerHeight*0.3 - window.innerHeight * 0.4;
-    let   wrapperWidth  = Math.min(window_width, window_height) * 1.5;   // like a rectangle with its longer side being half longer than its smaller side
-    let   heatmap_width = wrapperWidth - (heatmap_parameters["Y_link_lenght"] + heatmap_parameters["link_margin"]);
+function calculate_heatmap_width(heatmap_parameters, sample_names){
+    // 1 character at font size 12 is 8 pixels, I want 30 characters 240pixels
+    //console.log("calculate_heatmap:",sample_names);
+    //const window_width         = window.innerWidth - margin_parameters["left"] - margin_parameters["right"];
+    //const window_height        = window.innerHeight - margin_parameters["top"] - margin_parameters["bottom"]; //- window.innerHeight * 0.4;
+    //let   wrapperWidth         = Math.min(window_width, window_height) ;   // like a rectangle with its longer side being half longer than its smaller side
+    //let   wrapperWidth         = sample_names.length*sample_square_size;//depends now on the total number of samples.
+    //let   heatmap_width        = wrapperWidth - (heatmap_parameters["Y_link_lenght"] + heatmap_parameters["link_margin"]);
+    let   heatmap_width        = sample_names.length*heatmap_parameters.heatmap_sample_square_size;//depends now on the total number of samples.
     return(heatmap_width);
 }
+
+function BiggerElements(val){
+    return function(evalue, index, array){
+        return (evalue >= val);
+    };
+}
+
 /**
  * Draws the heatmap_canvas
  *
@@ -377,7 +385,7 @@ function draw_heatmap(general_parameters,sample_names){
     let general_content_parameters   = general_parameters["general_content"];
     let heatmap_parameters           = general_content_parameters["heatmap"];
     let margin_parameters            = general_parameters["margins"];
-    let heatmap_width                = calculate_heatmap_width(heatmap_parameters,margin_parameters);
+    let heatmap_width                = calculate_heatmap_width(heatmap_parameters,sample_names);
     let mct_footer = d3.select(".gcc")
         .append("div")
             .attr("class","mct_foot")
@@ -397,11 +405,52 @@ function draw_heatmap(general_parameters,sample_names){
         .style("flex-shrink","1")
         .style("flex-basis","auto")
         .style("align-self","flex-start")
+        .style("position","relative")
+        .style("z-index","1003")
         .style("width","100%")
         .style("box-shadow","0 0 5px 3px rgba(0,0,0,0.25) inset")
         .style("overflow-y","scroll")
+        //.attr('transform', 'translate(' + (heatmap_parameters.heatmap_controls_margin+ heatmap_parameters.heatmap_icon_container_width + heatmap_parameters.heatmap_controls_margin+  heatmap_parameters.heatmap_function_label_width + heatmap_parameters.heatmap_controls_margin+ heatmap_parameters.heatmap_icon_container_width+heatmap_parameters.heatmap_controls_margin+heatmap_parameters.heatmap_icon_container_width+ heatmap_parameters.heatmap_controls_margin ) + ',' + (0) + ')')
         .on("scroll",function(){
-            d3.select(".xn").attr('transform', 'translate(' + (parseInt(d3.select(".heatmap").attr("data-Y_link_lenght")) + parseInt(d3.select(".heatmap").attr("data-link_margin"))) + ',' + (d3.select(".mct").property("scrollTop")*(1/d3.select(".chart").attr("scale"))) + ')');
+            //d3.select(".xn").attr('transform', 'translate(' + (parseInt(d3.select(".heatmap").attr("data-Y_link_lenght")) + parseInt(d3.select(".heatmap").attr("data-link_margin"))) + ',' + (d3.select(".mct").property("scrollTop")*(1/d3.select(".chart").attr("scale"))) + ')');
+            d3.select(".xn").attr('transform', 'translate(' + (parseInt(d3.select(".xn").attr("data-x_position"))) + ',' + (d3.select(".mct").property("scrollTop")*(1/d3.select(".chart").attr("scale"))) + ')');
+            d3.select(".yn").attr('transform', 'translate(' + (parseInt(d3.select(".yn").attr("data-x_position"))) + ',' + (0) + ')');
+            // follow up scrolltop
+            //console.log("scroll_top");
+            //console.log(d3.select(".mct").property("scrollTop"));
+            //Getting the reference of the last drawn page
+            //Getting where I am 
+            const scale                             = zScale(d3.select(".zcc").property("value"));
+            const svg_height_min                    = Math.round(parseInt(d3.select(".div_svg").attr("height"))*(1/scale)*minZoom);
+            const mct_height                        = d3.select(".mct").node().getBoundingClientRect().height;
+            const page_number                       = Math.ceil(svg_height_min/mct_height);
+            const current_mct_scroll_top            = d3.select(".mct").property("scrollTop");
+            let   scroll_top_current_page           = 0;
+            let   i                                 = 0;
+            let   visible_node_max_threshold_vector = [];
+            while(i < page_number){
+                if(i+1===page_number){
+                    //fill the last element with the maximum size possible 
+                    visible_node_max_threshold_vector.push(svg_height_min*(1/minZoom)*(scale));
+                }else{
+                    visible_node_max_threshold_vector.push(Math.floor((i+1)*(1/minZoom)*mct_height*(scale)));
+                }
+                i++;
+              }
+            scroll_top_current_page = visible_node_max_threshold_vector.findIndex(BiggerElements(current_mct_scroll_top));
+            //console.log("scroll_top_current_page");
+            //console.log(scroll_top_current_page);
+            //console.log(parseInt(d3.select(".mct").attr("data-scroll_top_current_page")));
+            if(scroll_top_current_page === parseInt(d3.select(".mct").attr("data-scroll_top_current_page"))){
+                //same page do nothing
+            }else{
+                //send redraw order.
+                updateGraph();
+            }
+            //save a reference of the last page you draw on a global object, maybe mct
+            //here identify where you are at, using the scroll top page and the max vector 
+            //trigger a redraw event if the page changes in comparison to the last drawn. 
+            
         })
     ;
     //##########################################################################
@@ -547,6 +596,9 @@ function draw_heatmap(general_parameters,sample_names){
     //##########################################################################
             // this object is the window to see the target of the zoom.
             // remember to scale this up
+			
+	
+    const scale                             = zScale(d3.select(".zcc").property("value"));
             
     let svg = dv
         .append("svg")
@@ -557,51 +609,71 @@ function draw_heatmap(general_parameters,sample_names){
     ;
     let gZoom = svg.append("g")
         .attr("class","chart")
-        .attr("transform","scale(0.5)")
-        .attr("scale",0.5)
+        .attr("transform","scale("+scale+")")
+        .attr("scale",scale)
         .style("position","relative")
         .style("z-index","1001")
     ;
 
     // CREATING THE HEATMAP DRAWING SPACE 
-    
-    
+    const table_x_position         = heatmap_parameters.heatmap_controls_left_margin + heatmap_parameters.heatmap_icon_container_width + heatmap_parameters.heatmap_controls_left_margin;
+	const download_icon_x_position = table_x_position+ heatmap_width + heatmap_parameters.heatmap_controls_left_margin;
+    const GxNodes_x_position       = table_x_position;
+    const GyNodes_x_position       = download_icon_x_position + heatmap_parameters.heatmap_icon_container_width + heatmap_parameters.heatmap_controls_left_margin;
     let heatmap = gZoom.append('g').attr('class', 'heatmap')
         .attr('transform', 'translate('+ (0) + ',' + (heatmap_parameters.sample_name_height+20) + ')')
-        .attr("data-Y_link_lenght",heatmap_parameters.Y_link_lenght)
-        .attr("data-link_margin",heatmap_parameters.link_margin)
+        .attr("data-Y_link_lenght",heatmap_parameters.heatmap_sample_square_size)
+        .attr("data-link_margin",heatmap_parameters.heatmap_controls_margin)
         .style("position","relative")
         .style("z-index",1000)
     ;
-    
-    let GyNodes = heatmap.append('g')
-        .attr('class', 'yn')
-        .attr('transform','translate(' + (heatmap_parameters["Y_link_lenght"]+ heatmap_width + heatmap_parameters["link_margin"] + 10) + ',' + (1e-6) + ')')
-        .attr("data-intro_animation_time",heatmap_parameters.intro_animation_time)
-    ;
-    let GxNodes = gZoom.append('g')
-        .attr('class', 'xn')
-        .attr("height",heatmap_parameters.sample_name_height)
-        .attr("width",heatmap_width)
-        .attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"] + heatmap_parameters["link_margin"]) + ',' + (0) + ')')
-        .style("position","relative")
-        .style("z-index","1001")
-    ;
-
+    // table contains the heatmap squares
     let table = heatmap.append('g')
         .attr('class', 'table')
-        .attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"] + heatmap_parameters["link_margin"]) + ',' + (0) + ')')
+        //.attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"] + heatmap_parameters["link_margin"]) + ',' + (0) + ')')
+        .attr("data-x_position",table_x_position)
+        .attr('transform', 'translate(' + (table_x_position) + ',' + (0) + ')')
         .attr("data-heatmapWidth",heatmap_width)
         .attr("data-sample_names_length",sample_names.length)
     ;
-    let metadata_icon_holder = heatmap.append('g')
-        .attr('class', 'metadata_icon_holder')
-        .attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"]/3) + ',' + (0) + ')')
+    
+        // GxNodes contains the sample names
+    let GxNodes = gZoom.append('g')//you can intercept here for a rectangle to generate the blur
+        .attr('class', 'xn')
+        .attr("data-x_position",GxNodes_x_position)
+        .attr('transform', 'translate(' + (GxNodes_x_position) + ',' + (0) + ')')
+        .style("display","block")
+        .style("position","relative")
+        .style("z-index","1001")
     ;
+    
+    // GyNodes contains the function labels
+    let GyNodes = heatmap.append('g')
+        .attr('class', 'yn')
+        //.attr('transform','translate(' + (heatmap_parameters["Y_link_lenght"]+ heatmap_width + heatmap_parameters["link_margin"] + 10) + ',' + (1e-6) + ')')
+        .attr("data-x_position",GyNodes_x_position)
+        .attr('transform','translate(' + (GyNodes_x_position) + ',' + (1e-6) + ')')
+        //.attr('transform','translate(' + (heatmap_parameters.heatmap_controls_margin) + ',' + (1e-6) + ')')
+        .attr("data-intro_animation_time",heatmap_parameters.intro_animation_time)
+    ;
+
+    
+    
+    //first icon, the metadata icon
+    /*let metadata_icon_holder = heatmap.append('g')
+        .attr('class', 'metadata_icon_holder')
+        //.attr("width",heatmap_parameters.heatmap_icon_container_width)
+        //.attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"]/3) + ',' + (0) + ')')
+        .attr('transform', 'translate(' + (heatmap_parameters.heatmap_controls_left_margin ) + ',' + (0) + ')')
+    ;*/
+    //second icon the dowload protein icon
     let download_icon_holder = heatmap.append('g')
         .attr('class', 'download_icon_holder')
-        .attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"]/3)*2 + ',' + (0) + ')')
+        .attr("data-x_position",download_icon_x_position)
+        //.attr('transform', 'translate(' + (heatmap_parameters["Y_link_lenght"]/3)*2 + ',' + (0) + ')')
+        .attr('transform', 'translate(' + (download_icon_x_position) + ',' + (0) + ')')
     ;
+    //third  icon the expand compress function
 }
 
 /**
@@ -632,7 +704,80 @@ function draw_tool_tips(general_content_parameters){
         .style("border-radius","6px")
         .style("position","fixed")
         .style("z-index","101")
-        .text("When the heatmap is completely expanded, the site's response becomes slow")
+        .text("Warning might slow the site's response")
+    ;
+    let download_protein_tt = d3.select("body")
+        .append("span")
+        .attr("class","download_protein_tt")
+        .style("left","0px")
+        .style("top","0px")
+        .style("display","block")
+        .style("opacity",0.7)
+        .style("visibility","hidden")
+        .style("background-color","black")
+        .style("color","#fff")
+        .style("text-align","center")
+        .style("padding","5px")
+        .style("border-radius","6px")
+        .style("position","fixed")
+        .style("z-index","101")
+        .text("the download tooltip")
+    ;
+
+    let function_name_tt = d3.select("body")
+        .append("span")
+        .attr("class","function_name_tt")
+        .style("left","0px")
+        .style("top","0px")
+        .style("height","30px")
+        .style("opacity",0.7)
+        .style("visibility","hidden")
+        .style("background-color","black")
+        .style("color","#fff")
+        .style("text-align","center")
+        .style("vertical-align","middle")
+        .style("padding","2px")
+        .style("border-radius","6px")
+        .style("position","fixed")
+        .style("z-index","101")
+        .text("here I will insert the function name")
+    ;
+    let sample_name_tt = d3.select("body")
+        .append("span")
+        .attr("class","sample_name_tt")
+        .style("left","0px")
+        .style("top","0px")
+        .style("height","30px")
+        .style("opacity",0.7)
+        .style("visibility","hidden")
+        .style("background-color","black")
+        .style("color","#fff")
+        .style("text-align","center")
+        .style("vertical-align","middle")
+        .style("padding","2px")
+        .style("border-radius","6px")
+        .style("position","fixed")
+        .style("z-index","101")
+        .style("transform","rotate(270deg)")
+        .text("shu")
+    ;
+    let value_tt = d3.select("body")
+        .append("span")
+        .attr("class","value_tt")
+        .style("left","0px")
+        .style("top","0px")
+        .style("height","30px")
+        .style("opacity",0.7)
+        .style("visibility","hidden")
+        .style("background-color","black")
+        .style("color","#fff")
+        .style("text-align","center")
+        .style("vertical-align","middle")
+        .style("padding","2px")
+        .style("border-radius","6px")
+        .style("position","fixed")
+        .style("z-index","101")
+        .text("here I will insert the value")
     ;
     //------------------------------------------------------------------
     //------------------Unique filter tool tip--------------------------
@@ -688,6 +833,7 @@ function draw_tool_tips(general_content_parameters){
             d3.select(".tool_tip_color_yes")
                 .attr("data-color",this.value)
             ;
+            updateGraph();
         })
     ;
     tt1_cy.append("label")
@@ -729,6 +875,7 @@ function draw_tool_tips(general_content_parameters){
             d3.select(".tool_tip_color_partial")
                 .attr("data-color",this.value)
             ;
+            updateGraph();
         })
         ;
     tt1_cp.append("label")
@@ -770,6 +917,7 @@ function draw_tool_tips(general_content_parameters){
             d3.select(".tool_tip_color_no")
                 .attr("data-color",this.value)
             ;
+            updateGraph();
         })
     ;
     tt1_cn.append("label")
@@ -831,6 +979,7 @@ function setup_object_actions(){
             }
         )
     ;
+    //RESET BUTTON
     d3.select(".rb")
         .on("click",function(){
                 selected_data.descendants().slice(1).forEach(collapse);//the collapse gunction was defined in the genome_properties_tree_fused.js file
@@ -838,6 +987,7 @@ function setup_object_actions(){
             }
         )
     ;
+    //EXPAND ALL BUTTON
     d3.select(".eab")
         .on("click",function(){
                 selected_data.descendants().slice(1).forEach(expand);//the expand gunction was defined in the genome_properties_tree_fused.js file
@@ -845,10 +995,9 @@ function setup_object_actions(){
             }
         )
     ;
+    //FILTER DROP BOX
     d3.select(".fms").on("change",function(){
         d3.select(".fms").attr("data-filter",this.value);
-
-
         if(d3.select(".fms").attr("data-filter")==="all"){
             d3.select(".fry").attr("disabled","true");
             d3.select(".frp").attr("disabled","true");
@@ -860,22 +1009,45 @@ function setup_object_actions(){
             d3.select(".frn").attr("disabled",null);
             d3.select(".frs").attr("disabled",null);
         }
-
+        //call the data changing function
+        initHeatmapData();
     });
+    //CHECKBOXES
     d3.select(".fry").on("change",function(){
         d3.select(this).property("checked");
         if(d3.select(".frs").property("checked")){
             d3.select(".frs").property("checked",false);
+        }
+        //call the data changing function
+        let fcheck = [d3.select(".fry").property("checked"),d3.select(".frp").property("checked"),d3.select(".frn").property("checked"),d3.select(".frs").property("checked")];
+        if(fcheck.some(d => d===true)){
+            initHeatmapData();
+        }else{
+            alert("Please choose at least one value from YES, NO, PARTIAL or Unique");
         }
     });
     d3.select(".frp").on("change",function(){
         if(d3.select(".frs").property("checked")){
             d3.select(".frs").property("checked",false);
         }
+        //call the data changing function
+        let fcheck = [d3.select(".fry").property("checked"),d3.select(".frp").property("checked"),d3.select(".frn").property("checked"),d3.select(".frs").property("checked")];
+        if(fcheck.some(d => d===true)){
+            initHeatmapData();
+        }else{
+            alert("Please choose at least one value from YES, NO, PARTIAL or Unique");
+        }
     });
     d3.select(".frn").on("change",function(){
         if(d3.select(".frs").property("checked")){
             d3.select(".frs").property("checked",false);
+        }
+        //call the data changing function
+        let fcheck = [d3.select(".fry").property("checked"),d3.select(".frp").property("checked"),d3.select(".frn").property("checked"),d3.select(".frs").property("checked")];
+        if(fcheck.some(d => d===true)){
+            initHeatmapData();
+        }else{
+            alert("Please choose at least one value from YES, NO, PARTIAL or Unique");
         }
     });
     d3.select(".frs").on("change",function(){
@@ -883,6 +1055,13 @@ function setup_object_actions(){
             d3.select(".frn").property("checked",false);
             d3.select(".frp").property("checked",false);
             d3.select(".fry").property("checked",false);
+        }
+        //call the data changing function
+        let fcheck = [d3.select(".fry").property("checked"),d3.select(".frp").property("checked"),d3.select(".frn").property("checked"),d3.select(".frs").property("checked")];
+        if(fcheck.some(d => d===true)){
+            initHeatmapData();
+        }else{
+            alert("Please choose at least one value from YES, NO, PARTIAL or Unique");
         }
     });
 }
@@ -898,29 +1077,39 @@ function draw_sample_names(sample_names,general_parameters){
     console.log("I am in drawing the sample names");
     
     let samples                      = sample_names;
-    let general_content_parameters   = general_parameters["general_content"];
-    let heatmap_parameters           = general_content_parameters["heatmap"];
-    let margin_parameters            = general_parameters["margins"];
-    let heatmap_width                = calculate_heatmap_width(heatmap_parameters,margin_parameters);
-    let nodeSpaceX                   = heatmap_width/samples.length;
+    let general_content_parameters   = general_parameters.general_content;
+    let heatmap_parameters           = general_content_parameters.heatmap;
+    //let margin_parameters            = general_parameters["margins"];
+    let heatmap_width                = calculate_heatmap_width(heatmap_parameters,sample_names);
+    let nodeSpaceX                   = heatmap_parameters.heatmap_sample_square_size;
     let GxNodes = d3.select(".xn")
     ;
-    GxNodes
+    //This rect is the gaussian blur to make the sample square visible when scrolling down. But, it is not working on firefox
+    /*GxNodes
         .append('rect')
             .attr('transform', 'translate('+ (0) + ',' + (8) + ')')// se divide entre dos para colocarlo en la mitad
             .style("fill","white")
             .style("opacity",0.7)
-        ;
+        ;*/
+    GxNodes
+        .append("rect")
+		.attr("class","xn_background")
+        .style("position","relative")
+        .style("z-index","1000")
+        .style("display","block")
+        .style("fill","white")
+        .style("opacity",0.7)
+    ;
     let xNode = GxNodes.selectAll('g.x-node')
         .data(samples);
     xNode.join(
         function(enter){
             let xNodeEnter = enter
                     .append("g")
-                    .attr('class',"x-node")
+                    .attr('class',(function (d,i) {return "x-node heatmap_col heatmap_col"+i ;}))
                 ;
                 xNodeEnter.append("text")
-                    .attr('class',"x-node")
+                    .attr('class',function (d,i) {return "x-node x-node"+i ;})//"x-node"+i+
                     .style("text-anchor", 'start')
                     .attr("font-family", "Arial, sans-serif")
                     .attr("font-size", "12px")
@@ -943,7 +1132,18 @@ function draw_sample_names(sample_names,general_parameters){
             let xNodeExit = exit.remove();
             return(xNodeExit);
         }
-    );
+	)
+	const xn_background_height = GxNodes.node().getBBox().height*1;
+	const xn_background_y_pos  = heatmap_parameters["sample_name_height"] - xn_background_height;
+	console.log("width of xn");
+	console.log(GxNodes.node().getBBox().width*1);
+	console.log("height of xn");
+	console.log(xn_background_height);
+	d3.select(".xn_background")
+		.attr("width",GxNodes.node().getBBox().width*1)
+		.attr("height",xn_background_height)
+		.attr("transform","translate("+(0)+","+(xn_background_y_pos)+")")
+	;
 }
 
 
@@ -956,16 +1156,23 @@ function generate_download_tooltip_html_content(tooltip, hovered_tree_node) {//t
         if (result_key === null)
         {
             let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number;
-            let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'TOP FASTA' + '</a></p>';
-            let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'ALL FASTA' + '</a></p>';
+            //let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'TOP FASTA' + '</a></p>';
+            //let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'ALL FASTA' + '</a></p>';
+            let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Top 10 protein sequences' + '</a><br>';
+            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'All protein sequences' + '</a>';
             tooltip.html(download_link_one + download_link_two);
         }
         else {
             let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number + '?result_key=' + result_key;
-            let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'TOP FASTA' + '</a></p>';
-            let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '&all=true' + '">' + 'ALL FASTA' + '</a></p>';
+            //let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'TOP FASTA' + '</a></p>';
+            //let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '&all=true' + '">' + 'ALL FASTA' + '</a></p>';
+            let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Top 10 protein sequences' + '</a><br>';
+            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'All protein sequences' + '</a>';
             tooltip.html(download_link_one + download_link_two);
         }
+        
+        //set tooltip location depending on the object?
+        //making it visible
     }).catch(function (err) {
         console.log(err);
     });
