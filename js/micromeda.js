@@ -65,5 +65,8 @@ function get_diagram_data(backend_tree_url)
             draw_sample_names(genome_properties_data.sample_names,diagram_parameters);
             initHeatmapData(genome_properties_data.property_tree,diagram_parameters);
         });
+    }).fail(function() {
+        console.log( 'Tree not found. Redirecting to upload page.' );
+        window.location.href = '/html/upload_view.html';
     });
 }
