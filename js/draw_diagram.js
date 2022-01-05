@@ -1156,18 +1156,14 @@ function generate_download_tooltip_html_content(tooltip, hovered_tree_node) {//t
         if (result_key === null)
         {
             let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number;
-            //let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'TOP FASTA' + '</a></p>';
-            //let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'ALL FASTA' + '</a></p>';
-            let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Top 10 protein sequences' + '</a><br>';
-            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'All protein sequences' + '</a>';
+            let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Highest Scoring Protein Sequence Per Organism (FASTA)' + '</a><br>';
+            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'Multiple Protein Sequences Per Organism (FASTA)' + '</a>';
             tooltip.html(download_link_one + download_link_two);
         }
         else {
             let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number + '?result_key=' + result_key;
-            //let download_link_one = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'TOP FASTA' + '</a></p>';
-            //let download_link_two = '<p><a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '&all=true' + '">' + 'ALL FASTA' + '</a></p>';
-            let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Top 10 protein sequences' + '</a><br>';
-            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'All protein sequences' + '</a>';
+            let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Highest Scoring Protein Sequence Per Organism (FASTA)' + '</a><br>';
+            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'Multiple Protein Sequences Per Organism (FASTA)' + '</a>';
             tooltip.html(download_link_one + download_link_two);
         }
         
