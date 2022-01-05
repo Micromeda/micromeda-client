@@ -38,6 +38,7 @@ function create_dropzone()
             clickable: true,
             createImageThumbnails: false,
             maxFilesize: 2000,
+            timeout:60000,
             withCredentials: true,
             previewsContainer: ".dropzone-previews",
             addedfile: function (file_data) {
@@ -84,9 +85,11 @@ function create_dropzone()
                         console.log(err);
                         window.location.assign('../index.html');
                     });
-                }, 1000);
+                }, 5000);
             },
             error: function (file_data, response) {
+                console.log("file_data");
+                console.log(file_data);
                 $(file_data.progress_bar).removeClass('progress-bar-info').addClass('progress-bar-success')
                                          .removeClass('active').css('width', '100%').attr('aria-valuenow', 100)
                                          .text('100%');
@@ -110,7 +113,7 @@ function create_dropzone()
                     {
                         if (file_data.xhr.status === 0)
                         {
-                            console.error('Failed to connect to server')
+                            console.error('Failed to connect to server or file too large increase the timeout');
                         }
                         else
                         {
