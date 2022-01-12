@@ -1,3 +1,10 @@
 .idea
 .nosync
 node_modules
+configs/diagram_configuration_original.json
+data/extending_json_samples.r
+html/upload_view_original.html
+js/draw_diagram_original.js
+js/genome_properties_tree_original.js
+js/micromeda_original.js
+js/upload_view_original.js

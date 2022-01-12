@@ -691,26 +691,28 @@ function onmouseover_heatmap_squares(d,i){//Changing the cursor appearance
         //console.log("it is minor than the threshold");
         ygap_functions = -20;
         ygap_values    = -60;
-        ygap_samples   = -40;
+        ygap_samples   = -60;
         
         xgap_functions = 20;
         xgap_values    = 20;
-        xgap_samples   = -50;
+        xgap_samples   = 0;
     }else{
         ygap_functions = 20;
         ygap_values    = 60;
-        ygap_samples   = 40;
+        ygap_samples   = 60;
         
         xgap_functions = 20;
         xgap_values    = 20;
-        xgap_samples   = -50;
+        xgap_samples   = 0;
     }
+   
     d3.select(".function_name_tt")
         .style("visibility","visible")
         .style("left",(d3.select(this).node().getBoundingClientRect().left+xgap_functions)+"px")
         .style("top",(d3.select(this).node().getBoundingClientRect().top+ygap_functions)+"px")
         .text(d3.select(this.parentNode).data()[0].data.name)
     ;
+
     
     d3.select(".value_tt")
         .style("visibility","visible")
@@ -718,6 +720,7 @@ function onmouseover_heatmap_squares(d,i){//Changing the cursor appearance
         .style("top",(d3.select(this).node().getBoundingClientRect().top+ygap_values)+"px")
         .text(d3.select(this).data())
     ;
+
     
     d3.select(".sample_name_tt")
         .style("visibility","visible")
@@ -725,7 +728,6 @@ function onmouseover_heatmap_squares(d,i){//Changing the cursor appearance
         .style("top",(d3.select(this).node().getBoundingClientRect().top+ygap_samples)+"px")
         .text(d3.select(".x-node"+i).text())
     ;
-    
     
 }
 function onmouseout_heatmap_squares(d,i){
@@ -735,8 +737,14 @@ function onmouseout_heatmap_squares(d,i){
     viz_ligths_on();
     //Make the tool tips invisble. 
     d3.select(".value_tt").style("visibility","hidden");
+    d3.select(".value_tt").style("left","0px");
+    d3.select(".value_tt").style("top","0px");
     d3.select(".sample_name_tt").style("visibility","hidden");
+    d3.select(".sample_name_tt").style("left","0px");
+    d3.select(".sample_name_tt").style("top","0px");
     d3.select(".function_name_tt").style("visibility","hidden");
+    d3.select(".function_name_tt").style("left","0px");
+    d3.select(".function_name_tt").style("top","0px");
 }
 //array function from https://www.w3resource.com/javascript-exercises/javascript-function-exercise-19.php
 function BiggerElements(val){
@@ -907,8 +915,8 @@ function updateGraph (){
                         .style('fill', "white")
                         .attr("font-family", " Arial, sans-serif")
                         .attr("font-size", function(d){
-                                console.log("d");
-                                console.log(d);
+                                //console.log("d");
+                                //console.log(d);
                                 return (15-(d.depth)*1.2);
                             }
                         )
@@ -1090,8 +1098,8 @@ function updateGraph (){
     }else{
         console.log("I loaded a micromeda file, check if we have to draw the download icons");
         downloadable_steps.push(nodes.filter(is_node_downloadable));
-		console.log("downloadable_steps");
-		console.log(downloadable_steps);
+		//console.log("downloadable_steps");
+		//console.log(downloadable_steps);
 
         let d_icon = d3.select(".download_icon_holder").selectAll('.download_icon')
             .data(downloadable_steps[0],function(d) {
