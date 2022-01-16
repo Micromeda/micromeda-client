@@ -617,7 +617,7 @@ function draw_heatmap(general_parameters,sample_names){
 
     // CREATING THE HEATMAP DRAWING SPACE 
     const table_x_position         = heatmap_parameters.heatmap_controls_left_margin + heatmap_parameters.heatmap_icon_container_width + heatmap_parameters.heatmap_controls_left_margin;
-	const download_icon_x_position = table_x_position+ heatmap_width + heatmap_parameters.heatmap_controls_left_margin;
+    const download_icon_x_position = table_x_position+ heatmap_width + heatmap_parameters.heatmap_controls_left_margin;
     const GxNodes_x_position       = table_x_position;
     const GyNodes_x_position       = download_icon_x_position + heatmap_parameters.heatmap_icon_container_width + heatmap_parameters.heatmap_controls_left_margin;
     let heatmap = gZoom.append('g').attr('class', 'heatmap')
@@ -739,7 +739,7 @@ function draw_tool_tips(general_content_parameters){
         .style("padding","2px")
         .style("border-radius","6px")
         .style("position","fixed")
-        .style("z-index","101")
+        //.style("z-index","101")
         .text("here I will insert the function name")
     ;
     let sample_name_tt = d3.select("body")
@@ -757,8 +757,9 @@ function draw_tool_tips(general_content_parameters){
         .style("padding","2px")
         .style("border-radius","6px")
         .style("position","fixed")
-        .style("z-index","101")
+        //.style("z-index","101")
         .style("transform","rotate(270deg)")
+        .style("transform-origin","left 100%")
         .text("shu")
     ;
     let value_tt = d3.select("body")
@@ -776,7 +777,7 @@ function draw_tool_tips(general_content_parameters){
         .style("padding","2px")
         .style("border-radius","6px")
         .style("position","fixed")
-        .style("z-index","101")
+        //.style("z-index","101")
         .text("here I will insert the value")
     ;
     //------------------------------------------------------------------
@@ -1132,7 +1133,7 @@ function draw_sample_names(sample_names,general_parameters){
             let xNodeExit = exit.remove();
             return(xNodeExit);
         }
-	)
+	);
 	const xn_background_height = GxNodes.node().getBBox().height*1;
 	const xn_background_y_pos  = heatmap_parameters["sample_name_height"] - xn_background_height;
 	console.log("width of xn");
@@ -1145,7 +1146,6 @@ function draw_sample_names(sample_names,general_parameters){
 		.attr("transform","translate("+(0)+","+(xn_background_y_pos)+")")
 	;
 }
-
 
 
 function generate_download_tooltip_html_content(tooltip, hovered_tree_node) {//this one works only for steps

@@ -36,6 +36,7 @@ $(document).ready(function () {
                 // here the application speaks to the back-end (server), but it answers that there is no tree. So, I will pass it a Json tree inside the data folder. 
                 //get_diagram_data("./data/gp_assignments.json");
                 get_diagram_data("./data/Json_output_e.json");
+                //get_diagram_data("./data/Json_output.json");
             }
             else
             {
