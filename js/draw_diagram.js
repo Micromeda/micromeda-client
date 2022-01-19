@@ -1163,7 +1163,7 @@ function generate_download_tooltip_html_content(tooltip, hovered_tree_node) {//t
         else {
             let fasta_url = back_end_url + 'fasta/' + genome_property_id + '/' + step_number + '?result_key=' + result_key;
             let download_link_one = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url +'">' + 'Highest Scoring Protein Sequence Per Organism (FASTA)' + '</a><br>';
-            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '?all=true' + '">' + 'Multiple Protein Sequences Per Organism (FASTA)' + '</a>';
+            let download_link_two = '<a target="_blank" rel="noopener noreferrer" href="' + fasta_url + '&all=true' + '">' + 'Multiple Protein Sequences Per Organism (FASTA)' + '</a>';
             tooltip.html(download_link_one + download_link_two);
         }
         
