@@ -1,0 +1,92 @@
+/* Custom CSS for kimberlite on top of what boostrap provides */
+
+.dropzone {
+    height: 50vh;
+    cursor: pointer;
+    border: 1px solid gray;
+    border-radius: 5px;
+    background: #F0F0F0;
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .20);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.dz-message {
+    font-size: 2em;
+    text-align: center;
+}
+
+.navbar-header img {
+    border-radius: 50%;
+}
+
+.progress {
+    position: relative;
+    left: 10%;
+    width: 80%;
+    border: 1px solid rgba(0, 0, 0, 0.20);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, .18);
+    margin-top: 10px;
+    height: 2em;
+    vertical-align: middle;
+}
+
+.progress>.progress-bar {
+    vertical-align: middle;
+    line-height: 2.2em;
+}
+
+.navbar-right>li:last-child span:first-child {
+    padding: 6px;
+    border: 1px solid rgb(119, 119, 119);
+    border-radius: 5px;
+}
+
+.navbar-right>li:last-child span:first-child:hover {
+    border-color: rgb(51, 51, 51);
+
+}
+
+.navbar-right>li:last-child.active span:first-child {
+    padding: 6px;
+    border: 1px solid rgb(85, 85, 85);
+    border-radius: 5px;
+}
+
+.navbar-right>li:last-child.active span:first-child:hover {
+    padding: 6px;
+    border: 1px solid rgb(85, 85, 85);
+    border-radius: 5px;
+}
+
+/* This greys out the whole row if the sample status isn't "Done" */
+tr.sample-processing {
+    color: #bababa;
+}
+
+td.sample-correcting, td.sample-converting, td.sample-labelling,
+td.sample-clustering, td.sample-analyzing {
+    color: #377eb8;
+    font-weight: bold;
+}
+
+td.sample-compressing, td.sample-decompressing {
+    color: #ff7f00;
+    font-weight: bold;
+}
+
+td.sample-storing, td.sample-fetching, td.sample-archiving {
+    color: #984ea3;
+    font-weight: bold;
+}
+
+td.sample-uploaded, td.sample-stored, td.sample-done {
+    color: #4daf4a;
+    font-weight: bold;
+}
+
+td.sample-error {
+    color: #e41a1c;
+    font-weight: bold;
+}
