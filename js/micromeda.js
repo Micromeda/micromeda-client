@@ -25,7 +25,7 @@ const zScale                = d3.scaleLinear()
  */
 
 $(document).ready(function () {
-    
+
     $.getJSON('./configs/application_configuration.json', function (config) {
         back_end_url = config['back_end_url'];
 
@@ -33,10 +33,8 @@ $(document).ready(function () {
         localforage.getItem('micromeda-result-key').then(function (result_key) {
             if (result_key === null)
             {
-                // here the application speaks to the back-end (server), but it answers that there is no tree. So, I will pass it a Json tree inside the data folder. 
-                //get_diagram_data("./data/gp_assignments.json");
-                get_diagram_data("./data/Json_output_e.json");
-                //get_diagram_data("./data/Json_output.json");
+                get_diagram_data(back_end_url + "genome_properties_tree");
+                loaded_micromeda_file = true;
             }
             else
             {
