@@ -37,8 +37,8 @@ function create_dropzone()
             url: back_end_url + 'upload',
             clickable: true,
             createImageThumbnails: false,
-            maxFilesize: 2000,
-            timeout:60000,
+            maxFilesize: 110,
+            timeout:120000,
             withCredentials: true,
             previewsContainer: ".dropzone-previews",
             addedfile: function (file_data) {
