@@ -39,6 +39,7 @@ function create_dropzone()
             createImageThumbnails: false,
             maxFilesize: 110,
             timeout:120000,
+            acceptedFiles: '.micro',
             withCredentials: true,
             previewsContainer: ".dropzone-previews",
             addedfile: function (file_data) {
