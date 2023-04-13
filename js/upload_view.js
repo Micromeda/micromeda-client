@@ -37,8 +37,9 @@ function create_dropzone()
             url: back_end_url + 'upload',
             clickable: true,
             createImageThumbnails: false,
-            maxFilesize: 2000,
-            timeout:60000,
+            maxFilesize: 110,
+            timeout:120000,
+            acceptedFiles: '.micro, .sqlite, .sqlite3',
             withCredentials: true,
             previewsContainer: ".dropzone-previews",
             addedfile: function (file_data) {
@@ -101,24 +102,17 @@ function create_dropzone()
 
                 if (!file_data.accepted)
                 {
-                    console.error('Upload rejected: invalid file type (Micromeda files only)');
+                    console.error('Upload rejected: invalid file type (Micromeda files only) or file is too big.');
                 }
                 else
                 {
-                    if (file_data.xhr.status === 401)
+                    if (file_data.xhr.status === 0)
                     {
-                        console.error('You must be logged in to upload files');
+                        console.error('Failed to connect to server or file too large increase the timeout');
                     }
                     else
                     {
-                        if (file_data.xhr.status === 0)
-                        {
-                            console.error('Failed to connect to server or file too large increase the timeout');
-                        }
-                        else
-                        {
-                            console.error('File upload failed: ' + response.error);
-                        }
+                        console.error('File upload failed: ' + response.error);
                     }
                 }
             }
